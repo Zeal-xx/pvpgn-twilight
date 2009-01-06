@@ -9,12 +9,12 @@ adjustments are made.
 
 PVPGN/bnetd is an opensource project which emulates Blizzard's Battle.NET.
 
-The project is very old, and thus quite mature. While it does a marvelous
-job at cloning the functionality and behavior of the official servers, it
-has a serious flaw: account control. While Blizzard have the luxury of
-authenticating CD keys, PVPGN hosts do not. This makes it incredibly
-frustrating running a bnetd server - it just takes one user intent on ruining
-it for everybody else.. and you have a big problem on your hands.
+The project is old, and thus quite mature. While it does a marvelous job
+at cloning the functionality and behavior of the official servers, it has a
+serious flaw: account control. While Blizzard have the luxury of authenticating
+CD keys, PVPGN hosts do not. This makes it incredibly frustrating running
+a bnetd server - it just takes one user intent on ruining it for everybody else,
+and you have a big problem on your hands.
 
 While IP banning can be effective, not all users sit behind static addresses.
 Furthermore, custom games don't always follow the same ruleset as the
@@ -26,8 +26,8 @@ The Twilight modifications have been running on Twilight[http://war3.co.za] with
 much success for the better part of a year. The original source was based off
 PVPGN 1.99.r384 (a snapshot at the time), and has been maintained with SVN.
 Since then, there have been many requests for the source. While originally
-hesitant, I haev since decided to opensource the project. However, the code
-presented here is a full rewrite of the modifications.
+hesitant, I have decided to opensource the project. However, the code
+presented here is (or rather, will be) a full rewrite of the modifications.
 
 ## Twilight features
 
@@ -38,8 +38,7 @@ This is a very brief overview of the features involved.
 * Simple web management, written in Rails for use with MYSQL
 
 More information about current and future features can be found at the
-[wiki](http://github.com/marcbowes/pvpgn-twilight/wikis) for this project
-(to be written).
+[wiki](http://github.com/marcbowes/pvpgn-twilight/wikis) for this project.
 
 ## Layout
 
@@ -59,7 +58,6 @@ First you need a copy of the code. Either grab it using git:
     % git clone git://github.com/marcbowes/pvpgn-twilight.git
     
 or, you can get it through github's download system:
-
   * [tarball](http://github.com/marcbowes/pvpgn-twilight/tarball/master)
   * [zip](http://github.com/marcbowes/pvpgn-twilight/zipball/master)
 
@@ -79,13 +77,18 @@ For further information, please see
 # Other information
 
 ## Authors
-
   * Marc Bowes <marcbowes@gmail.com>
   
 ## External links
-
   * [PVPGN home](http://pvpgn.berlios.de)
   * Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
+  
+## Credit
+
+Original credit to the PVPGN guys, without whom none of this would be possible.
+I would especially like to thank d1zzy, who, despite the many many lazy people
+throwing many many stupid questions at him, still finds it in him to help out.
+Without his input, this venture would have been far more painful.
   
 ## Licensing
 
