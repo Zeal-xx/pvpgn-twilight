@@ -1,11 +1,11 @@
-= PVPGN.bnetd ala Twilight
+# PVPGN.bnetd ala Twilight
 
 This project focuses at providing the following functionality to bnetd. Note
 that almost all changes are designed with DotA (a custom map) for W3XP in mind.
 However, changes here can be beneficial to any game, provided the right
 adjustments are made.
 
-== History
+## History
 
 PVPGN/bnetd is an opensource project which emulates Blizzard's Battle.NET.
 
@@ -29,7 +29,7 @@ Since then, there have been many requests for the source. While originally
 hesitant, I haev since decided to opensource the project. However, the code
 presented here is a full rewrite of the modifications.
 
-== Twilight features
+## Twilight features
 
 This is a very brief overview of the features involved.
 * Experience system
@@ -38,45 +38,46 @@ This is a very brief overview of the features involved.
 * Simple web management, written in Rails for use with MYSQL
 
 More information about current and future features can be found at the
-wiki[http://github.com/marcbowes/pvpgn-twilight/wikis] for this project
+[wiki](http://github.com/marcbowes/pvpgn-twilight/wikis) for this project
 (to be written).
 
-== Layout
+## Layout
 
 PVPGN is developed using SVN. This project is maintained using git, and git-svn
 for keeping the project up to date with the SVN trunk of PVPGN. The master
 branch of this project is therefore a hybrid between the upstream of PVPGN and
 the development branch of our mods.
 
-== Contributing
+## Contributing
 
 Please see this page on the wiki (to be written).
 
-== Installation
+## Installation
 
 The recommended install method is using cmake. As you might notice, git is
 setup to ignore the build/ directory in the base of project. Once cmake is
 installed, you should be able to (assuming NIX environment):
 
-  % cd /path/to/pvpgn-twilight/
-  % mkdir build
-  % cd build
-  % cmake ../pvpgn
-  % make
+    % cd /path/to/pvpgn-twilight/
+    % mkdir build
+    % cd build
+    % cmake ../pvpgn
+    % make
   
 For further information, please see
-README.cmake[http://github.com/marcbowes/pvpgn-twilight/tree/master/pvpgn/README.cmake]
+[README.cmake](http://github.com/marcbowes/pvpgn-twilight/tree/master/pvpgn/README.cmake)
 
-= Other information
+# Other information
 
-Authors::   Marc Bowes
-PVPGN::     http://pvpgn.berlios.de
+Authors
+  * Marc Bowes <marcbowes@gmail.com>
+PVPGN: <http://pvpgn.berlios.de>
 
 PVPGN is released under GPL-v2 (at the time of writing). However, this may
 change in the future. Regardless, this project is re-released under whatever
 license PVPGN chooses to use. Below is a copy of the current license.
 
-== GPL version 2
+## GPL version 2
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
