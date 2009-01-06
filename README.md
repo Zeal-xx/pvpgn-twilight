@@ -50,9 +50,18 @@ the development branch of our mods.
 
 ## Contributing
 
-Please see this page on the wiki (to be written).
+Please see ['contributing' on the wiki](http://github.com/marcbowes/pvpgn-twilight/wikis/contributing)
 
 ## Installation
+
+First you need a copy of the code. Either grab it using git:
+
+    % git clone git://github.com/marcbowes/pvpgn-twilight.git
+    
+or, you can get it through github's download system:
+
+  * [tarball](http://github.com/marcbowes/pvpgn-twilight/tarball/master)
+  * [zip](http://github.com/marcbowes/pvpgn-twilight/zipball/master)
 
 The recommended install method is using cmake. As you might notice, git is
 setup to ignore the build/ directory in the base of project. Once cmake is
@@ -71,12 +80,12 @@ For further information, please see
 
 ## Authors
 
-  1.  Marc Bowes <marcbowes@gmail.com>
+  * Marc Bowes <marcbowes@gmail.com>
   
 ## External links
 
-  1.  [PVPGN home](http://pvpgn.berlios.de)
-  2.  Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
+  * [PVPGN home](http://pvpgn.berlios.de)
+  * Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
   
 ## Licensing
 
