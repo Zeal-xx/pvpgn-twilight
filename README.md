@@ -69,9 +69,15 @@ For further information, please see
 
 # Other information
 
-Authors
-  * Marc Bowes <marcbowes@gmail.com>
-PVPGN: <http://pvpgn.berlios.de>
+## Authors
+
+  + Marc Bowes <marcbowes@gmail.com>
+  
+## External links
+
+  + [PVPGN home](http://pvpgn.berlios.de)
+  + Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
+  
 
 PVPGN is released under GPL-v2 (at the time of writing). However, this may
 change in the future. Regardless, this project is re-released under whatever
