@@ -29,7 +29,15 @@ Since then, there have been many requests for the source. While originally
 hesitant, I have decided to opensource the project. However, the code
 presented here is (or rather, will be) a full rewrite of the modifications.
 
-## Twilight features
+## Twilight itself
+
+From the long splurb above, one thing should be clear: PVPGN is great at
+pretending to be Blizzard's Battle.NET.. but that's just the problem, ain't it?
+Battle.NET is an old system designed in almost another era. PVPGN developers
+do not have any intention of *deviating* from the Battle.NET design. That's
+where we come in. Our entire goal is to make bnetd fun for all. We don't care
+how much of BNET we molester in the process. If it works out to be a better
+system.. well, then that's Mission Accomplished.
 
 This is a very brief overview of the features involved.
 * Experience system
