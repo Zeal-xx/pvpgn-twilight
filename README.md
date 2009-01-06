@@ -71,31 +71,30 @@ For further information, please see
 
 ## Authors
 
-  + Marc Bowes <marcbowes@gmail.com>
+  1.  Marc Bowes <marcbowes@gmail.com>
   
 ## External links
 
-  + [PVPGN home](http://pvpgn.berlios.de)
-  + Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
+  1.  [PVPGN home](http://pvpgn.berlios.de)
+  2.  Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
   
+## Licensing
 
 PVPGN is released under GPL-v2 (at the time of writing). However, this may
 change in the future. Regardless, this project is re-released under whatever
 license PVPGN chooses to use. Below is a copy of the current license.
 
-## GPL version 2
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> This program is free software; you can redistribute it and/or
+> modify it under the terms of the GNU General Public License
+> as published by the Free Software Foundation; either version 2
+> of the License, or (at your option) any later version.
+> 
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+> 
+> You should have received a copy of the GNU General Public License
+> along with this program; if not, write to the Free Software
+> Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
