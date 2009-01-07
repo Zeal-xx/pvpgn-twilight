@@ -349,15 +349,17 @@ static int _handle_tos_command(t_connection * c, char const * text);
 /*
  Twilight modifications
  ======================
- Author:  Tim Sjoberg
+ Authors: Tim Sjoberg, Marc Bowes
  Date:    Wed 7 Jan 2009
  
  Function declarations for exp system related functions
  */
-static int _handle_setlevel_command(t_connection * c, char const * text);
+static int _handle_experience_command(t_connection * c, char const * text);
+static int _handle_setexperience_command(t_connection * c, char const * text);
 static int _handle_level_command(t_connection * c, char const * text);
-static int _handle_setal_command(t_connection * c, char const * text);
+static int _handle_setlevel_command(t_connection * c, char const * text);
 static int _handle_getal_command(t_connection * c, char const * text);
+static int _handle_setal_command(t_connection * c, char const * text);
 
 
 static const t_command_table_row standard_command_table[] =
@@ -475,17 +477,23 @@ static const t_command_table_row extended_command_table[] =
 /*
  Twilight modifications
  ======================
- Author:  Tim Sjoberg
+ Authors: Tim Sjoberg, Marc Bowes
  Date:    Wed 7 Jan 2009
  
  Command hookup - see command definitions
  */
-  { "/setlevel"              , _handle_setlevel_command },
-  { "/level"              , _handle_level_command },
-  { "/setal"              , _handle_setal_command },
-  { "/getal"              , _handle_getal_command },
+  { "/experience"        , _handle_experience_command },
+  { "/setexperience"     , _handle_setlevel_command },
+  { "/exp"               , _handle_experience_command },
+  { "/setexp"            , _handle_setlevel_command },
+  { "/level"             , _handle_level_command },
+  { "/lvl"               , _handle_level_command },
+  { "/setlevel"          , _handle_setlevel_command },
+  { "/setlvl"            , _handle_setlevel_command },
+  { "/getal"             , _handle_getal_command },
+  { "/setal"             , _handle_setal_command },
 
-  { NULL                  , NULL }
+  { NULL                 , NULL }
 
 };
 
@@ -5191,51 +5199,26 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
 /*
  Twilight modifications
  ======================
- Authors: Tim Sjoberg, Marc Bowes
+ Author:  Marc Bowes
  Date:    Wed 7 Jan 2009
  
- Description of _handle_setlevel_command
- ---------------------------------------
- Sets the specified user's level, provided it is within bounds. The other
- errors thrown are simply precautionary, but should they crop up.. be afraid!
- This could indicate a serious error in PVPGN.
+ Stub
  */
-static int _handle_setlevel_command(t_connection * c, char const * text)
+static int _handle_experience_command(t_connection * c, char const * text)
 {
-  std::stringstream params(skip_command(text));
-  std::string username;  
-  params >> username >> std::ws;
-  
-  //it doesn't matter if username is empty, it will fail on this check as well
-  if (params.eof()) {
-    message_send_text(c,message_type_info,c,"Syntax: /setlevel <username> <level>");
-    return 0;
-  } 
-  
-  int level;
-  params >> level >> std::ws; // TODO: ws is there because in the future lockacct might require a reason
-  
-  if (level < 0 || level > 100) { // FIXME: these limits need to be specified in a config file
-    message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
-    return 0;
-  }
-  
-  t_account *account;
-  if (!(account = accountlist_find_account(username.c_str()))) {
-    message_send_text(c, message_type_info, c, "Invalid user.");
-    return 0;
-  }
-  
-  t_account *setter;
-  if (!(setter = conn_get_account(c))) {
-    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
-    return 0;
-  }
+  return 0;
+}
 
-  account_set_level(account, level, setter);
-  std::stringstream message;
-  message << "User " << username << "'s level has been changed to " << level << ".";
-  message_send_text(c,message_type_info,c,message.str().c_str());
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Stub
+ */
+static int _handle_setexperience_command(t_connection * c, char const * text)
+{
   return 0;
 }
 
@@ -5316,12 +5299,74 @@ static int _handle_level_command(t_connection * c, char const * text)
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Authors: Tim Sjoberg, Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _handle_setlevel_command
+ ---------------------------------------
+ Sets the specified user's level, provided it is within bounds. The other
+ errors thrown are simply precautionary, but should they crop up.. be afraid!
+ This could indicate a serious error in PVPGN.
+ */
+static int _handle_setlevel_command(t_connection * c, char const * text)
+{
+  std::stringstream params(skip_command(text));
+  std::string username;  
+  params >> username >> std::ws;
+  
+  //it doesn't matter if username is empty, it will fail on this check as well
+  if (params.eof()) {
+    message_send_text(c,message_type_info,c,"Syntax: /setlevel <username> <level>");
+    return 0;
+  } 
+  
+  int level;
+  params >> level >> std::ws; // TODO: ws is there because in the future lockacct might require a reason
+  
+  if (level < 0 || level > 100) { // FIXME: these limits need to be specified in a config file
+    message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
+    return 0;
+  }
+  
+  t_account *account;
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c, message_type_info, c, "Invalid user.");
+    return 0;
+  }
+  
+  t_account *setter;
+  if (!(setter = conn_get_account(c))) {
+    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
+    return 0;
+  }
+
+  account_set_level(account, level, setter);
+  std::stringstream message;
+  message << "User " << username << "'s level has been changed to " << level << ".";
+  message_send_text(c,message_type_info,c,message.str().c_str());
+  return 0;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _handle_getal_command
+ ---------------------------------------
+ Returns the user's access level - used to control the level at which they
+ will host their games.
+ */
 static int _handle_getal_command(t_connection * c, char const * text)
 {
-  std::stringstream ss;
-  ss << "Your game access level(AL) is currently set to: " << conn_get_access_level(c) <<". Only users with this level or above can join your games.";
-
-  message_send_text(c, message_type_info, c, ss.str().c_str());
+  std::stringstream message;
+  message << "Your game access level is currently set to: " << conn_get_access_level(c);
+  message << ". Only users with this level or above can join your games.";
+  message_send_text(c,message_type_info,c,message.str().c_str());
 
   return 0;
 }
