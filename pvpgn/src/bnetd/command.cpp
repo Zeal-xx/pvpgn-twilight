@@ -2956,32 +2956,73 @@ struct glist_cb_struct {
     t_connection *c;
 };
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _glist_cb
+ ------------------------
+ This function is used by gamelist_traverse.
+ Each iteration of the traversal will call this function with the parameters
+ for that game.
+ 
+ Modification description
+ ------------------------
+ The Experience System limits the games displayed (filter by level).
+ In a similar manner go _glist_cb in handle_bnet.cpp, started games are hidden
+ */
 static int _glist_cb(t_game *game, void *data)
 {
     struct glist_cb_struct *cbdata = (struct glist_cb_struct*)data;
-
+    
+    // filter out game if it is not-open (if this is set in the preferences)
+    if (prefs_get_hide_started_games() && game_get_status(game) != game_status_open) {
+    	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because game is not open", conn_get_socket(cbdata->c));
+    	return 0;
+    }
+    // ---
+    
+    // retrieve level of the player and game
+    t_connection *player_connection = cbdata->c;
+    t_account    *player_account;
+    if (player_account = conn_get_account(player_connection)) {
+    	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because account could not be retrieved", conn_get_socket(cbdata->c));
+    	return 0;
+    }
+    int player_level  = account_get_level(player_account);
+    int game_level    = game_get_level(game);
+    
+    // filter out game if it is too high a level for the player
+    if (player_level < game_level) {
+      eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because account is too low a level", conn_get_socket(cbdata->c));
+    	return 0;
+    }
+    // ---
+    
     if ((!cbdata->tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
-	(!cbdata->tag || game_get_clienttag(game)==cbdata->tag) &&
+      	(!cbdata->tag || game_get_clienttag(game)==cbdata->tag) &&
         (cbdata->diff==game_difficulty_none || game_get_difficulty(game)==cbdata->diff))
     {
-	snprintf(msgtemp, sizeof(msgtemp), " %-16.16s %1.1s %-8.8s %-21.21s %5u ",
-	    game_get_name(game),
-	    game_get_flag(game) != game_flag_private ? "n":"y",
-	    game_status_get_str(game_get_status(game)),
-	    game_type_get_str(game_get_type(game)),
-	    game_get_ref(game));
+      snprintf(msgtemp, sizeof(msgtemp), " %-16.16s %1.1s %-8.8s %-21.21s %5u ",
+  	    game_get_name(game),
+  	    game_get_flag(game) != game_flag_private ? "n":"y",
+  	    game_status_get_str(game_get_status(game)),
+  	    game_type_get_str(game_get_type(game)),
+  	    game_get_ref(game));
+	    
+    	if (!cbdata->tag)
+    	{
 
-	if (!cbdata->tag)
-	{
+    	  std::strcat(msgtemp,clienttag_uint_to_str(game_get_clienttag(game)));
+    	  std::strcat(msgtemp," ");
+    	}
+      
+    	if ((!prefs_get_hide_addr()) || (account_get_command_groups(conn_get_account(cbdata->c)) & command_get_group("/admin-addr"))) /* default to false */
+    	  std::strcat(msgtemp, addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
 
-	  std::strcat(msgtemp,clienttag_uint_to_str(game_get_clienttag(game)));
-	  std::strcat(msgtemp," ");
-	}
-
-	if ((!prefs_get_hide_addr()) || (account_get_command_groups(conn_get_account(cbdata->c)) & command_get_group("/admin-addr"))) /* default to false */
-	  std::strcat(msgtemp, addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
-
-	message_send_text(cbdata->c,message_type_info,cbdata->c,msgtemp);
+    	message_send_text(cbdata->c,message_type_info,cbdata->c,msgtemp);
     }
 
     return 0;
