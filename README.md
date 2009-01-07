@@ -85,19 +85,21 @@ For further information, please see
 # Other information
 
 ## Authors
+
   * Marc Bowes <marcbowes@gmail.com>
-  
+
 ## External links
+
   * [PVPGN home](http://pvpgn.berlios.de)
   * Twilight [home](http://war3.co.za/) and [forums](http://forum.war3.co.za)
-  
+
 ## Credit
 
 Original credit to the PVPGN guys, without whom none of this would be possible.
 I would especially like to thank d1zzy, who, despite the many many lazy people
 throwing many many stupid questions at him, still finds it in him to help out.
 Without his input, this venture would have been far more painful.
-  
+
 ## Licensing
 
 PVPGN is released under GPL-v2 (at the time of writing). However, this may
