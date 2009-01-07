@@ -4203,6 +4203,20 @@ static int _handle_timer_command(t_connection * c, char const *text)
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _handle_serverban_command
+ -----------------------------------------
+ This function locks and IP kills (with a permamnent ban) an account
+ 
+ Modification description
+ ------------------------
+ Changed the lockacct call to be interpreted as a seperate command
+ */
 static int _handle_serverban_command(t_connection *c, char const *text)
 {
   char dest[MAX_USERNAME_LEN];
@@ -4232,7 +4246,10 @@ static int _handle_serverban_command(t_connection *c, char const *text)
       message_send_text(c,message_type_info,c,"Users Account is also LOCKED! Only a Admin can Unlock it!");
       snprintf(msgtemp, sizeof(msgtemp), "/ipban a %.64s",addr_num_to_ip_str(conn_get_game_addr(dest_c)));
       handle_ipban_command(c,msgtemp);
-      account_set_auth_lock(conn_get_account(dest_c),1);
+      // Twilight - change from a call to account_set_auth_lock to a command call to _handle_lockacct_command
+      snprintf(msgtemp, sizeof(msgtemp), "/lockacct %s",conn_get_loggeduser(dest_c));
+      _handle_lockacct_command(c,msgtemp);
+      // ---
       //now kill the connection
       snprintf(msgtemp, sizeof(msgtemp), "You have been banned by Admin: %.64s",conn_get_username(c));
       message_send_text(dest_c,message_type_error,dest_c,msgtemp);
@@ -4327,55 +4344,118 @@ static int _handle_quota_command(t_connection * c, char const * text)
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _handle_lockacct_command
+ ---------------------------------------
+ This function locks an account, preventing future logins
+ 
+ Modification description
+ ------------------------
+ Function rewrite to C++ style
+ Notifies locker if account is already locked
+ Send account through of command called for logging purposes
+ Changed message colours for user/unlocker
+ */
 static int _handle_lockacct_command(t_connection * c, char const *text)
 {
-  t_connection * user;
-  t_account *    account;
+  t_connection  *user;
+  t_account     *account;
+  t_account     *locker;
 
-  text = skip_command(text);
+  std::stringstream params(skip_command(text));
+  std::string username;
+  params >> username >> std::ws; // TODO: ws is there because in the future lockacct might require a reason
 
-  if (text[0]=='\0')
-    {
-      message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
-      return 0;
-    }
-
-  if (!(account = accountlist_find_account(text)))
-    {
-      message_send_text(c,message_type_error,c,"Invalid user.");
-      return 0;
-    }
-  if ((user = connlist_find_connection_by_accountname(text)))
-    message_send_text(user,message_type_info,user,"Your account has just been locked by admin.");
-
-  account_set_auth_lock(account,1);
-  message_send_text(c,message_type_error,c,"That user account is now locked.");
+  if (username.empty()) {
+    message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
+    return 0;
+  }
+  
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c,message_type_error,c,"Invalid user.");
+    return 0;
+  }
+  
+  if (account_get_auth_lock(account)) {
+    message_send_text(c,message_type_error,c,"Account is already locked");
+    return 0;
+  }
+  
+  if (!(locker = conn_get_account(c))) {
+    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
+    return 0;
+  }
+  
+  if (user = account_get_conn(account)) {
+    message_send_text(user,message_type_error,user,"Your account has just been locked by admin.");
+  }
+  
+  std::stringstream message;
+  message << username << " is now locked";
+  account_set_auth_lock(account, 1, locker);
+  message_send_text(c,message_type_info,c,message.str().c_str());
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _handle_unlockacct_command
+ -----------------------------------------
+ This function unlocks an account - meaning it will be able to log in
+ 
+ Modification description
+ ------------------------
+ Function rewrite to C++ style
+ Send account through of command called for logging purposes
+ Changed message colours for user/unlocker
+ */
 static int _handle_unlockacct_command(t_connection * c, char const *text)
 {
-  t_connection * user;
-  t_account *    account;
+  t_connection  *user;
+  t_account     *account;
+  t_account     *unlocker;
 
-  text = skip_command(text);
+  std::stringstream params(skip_command(text));
+  std::string username;
+  params >> username >> std::ws; // TODO: ws is there because in the future unlockacct might require a reason
 
-  if (text[0]=='\0')
-    {
-      message_send_text(c,message_type_info,c,"usage: /unlockacct <username>");
-      return 0;
-    }
-  if (!(account = accountlist_find_account(text)))
-    {
-      message_send_text(c,message_type_error,c,"Invalid user.");
-      return 0;
-    }
-
-  if ((user = connlist_find_connection_by_accountname(text)))
+  if (username.empty()) {
+    message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
+    return 0;
+  }
+  
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c,message_type_error,c,"Invalid user.");
+    return 0;
+  }
+  
+  if (!account_get_auth_lock(account)) {
+    message_send_text(c,message_type_error,c,"Account is already unlocked");
+    return 0;
+  }
+  
+  if (!(unlocker = conn_get_account(c))) {
+    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
+    return 0;
+  }
+  
+  if (user = account_get_conn(account)) {
     message_send_text(user,message_type_info,user,"Your account has just been unlocked by admin.");
-
-  account_set_auth_lock(account,0);
-  message_send_text(c,message_type_error,c,"That user account is now unlocked.");
+  }
+  
+  std::stringstream message;
+  message << username << " is now unlocked";
+  account_set_auth_lock(account, 0, unlocker);
+  message_send_text(c,message_type_info,c,message.str().c_str());
   return 0;
 }
 

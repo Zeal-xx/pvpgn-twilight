@@ -364,10 +364,30 @@ extern int account_get_auth_lock(t_account * account)
     return account_get_boolattr(account,"BNET\\auth\\lockk");
 }
 
-
-extern int account_set_auth_lock(t_account * account, int val)
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of account_set_auth_lock
+ ------------------------------------
+ Quite simply, locks an account. Locked accounts are unable to login.
+ 
+ Modification description
+ ------------------------
+ Requires a 3rd parameter - the account of the locker
+ */
+extern int account_set_auth_lock(t_account * account, int val, t_account * setter)
 {
-    return account_set_boolattr(account,"BNET\\auth\\lockk",val);
+  std::string lock_or_unlock = (val == 1 ? "locked" : "unlocked");
+  if (setter) {
+    eventlog(eventlog_level_debug,__FUNCTION__,"account %s %s by %s",account_get_name(account),lock_or_unlock.c_str(),account_get_name(setter));
+  } else {
+    eventlog(eventlog_level_debug,__FUNCTION__,"account %s %s by system",account_get_name(account),lock_or_unlock.c_str());
+  }
+   
+  return account_set_boolattr(account,"BNET\\auth\\lockk",val);
 }
 
 
