@@ -2522,16 +2522,132 @@ extern int account_set_locale(t_account * account, int locale)
  Author:  Marc Bowes
  Date:    Wed 7 Jan 2009
  
+ Internal utility function to convert experience to level.
+ */
+extern int account_convert_experience_to_level(int experience)
+{
+  // FIXME: MIN/MAX level from preferences
+  for (int i = 1; i <= 100; i++) {
+    int compare = account_convert_level_to_experience(i);
+    if (experience < compare) {
+      return --i;
+    } else if (experience == compare) {
+      return i;
+    }
+  }
+  
+  return 0;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Internal utility function to convert levels to experience.
+ */
+extern int account_convert_level_to_experience(int level)
+{
+  // FIXME: should (or can?) this be done through preferences?
+  int experience = 0;
+  for (int i = 0; i < level; i++) {
+    if      (i < 10)  experience += 232;
+    else if (i < 30)  experience += 350;
+    else if (i < 50)  experience += 500;
+    else              experience += 1000;
+  }
+  
+  return experience;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Attribute reader for BNET\experience
+ */
+extern int account_get_experience(t_account * account)
+{
+  if (!account) {
+    ERROR0("got NULL account");
+    return 0;
+  }
+  
+  return account_get_numattr(account,"BNET\\experience");
+}
+
+/*
+ Twilight modificiations
+ =======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Attribute setter for BNET\experience
+ Ensures that the account's connection's AL is legal
+ */
+extern int account_set_experience(t_account * account, int experience, t_account * setter)
+{
+  if (!account) {
+    ERROR0("got NULL account");
+    return 0;
+  }
+  
+  int current_experience  = account_get_experience(account);
+  int current_level       = account_get_level(account);
+  int level               = account_convert_experience_to_level(experience);
+  
+  // ensure legal AL before altering level
+  t_connection * connection;
+  if (connection = account_get_conn(account)) {
+    int current_access_level = conn_get_access_level(connection);
+    if (current_access_level > level) {
+      conn_set_access_level(connection, level);
+    }
+  }
+  
+  std::stringstream log_message;
+  log_message << "[** TWILIGHT **] " << "account " << account_get_name(account);
+  log_message << " has exp/level set from " << current_experience << "/" << current_level;
+  log_message << " to " << experience << "/" << level;
+  if (setter) {
+    eventlog(eventlog_level_debug,__FUNCTION__,"%s by %s",log_message.str().c_str(), account_get_name(setter));
+  } else {
+    eventlog(eventlog_level_debug,__FUNCTION__,"%s by system",log_message.str().c_str());
+  }
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
  Attribute reader for BNET\level
  */
 extern int account_get_level(t_account * account)
 {
   if (!account) {
-    eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    ERROR0("got NULL account");
     return 0;
   }
   
   return account_get_numattr(account,"BNET\\level");
+}
+
+/*
+ Twilight modificiations
+ =======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Forwards onto account_set_experience
+ */
+extern int account_set_level(t_account * account, int level, t_account * setter)
+{
+  return account_set_experience(account, account_convert_level_to_experience(level), setter);
 }
 
 }

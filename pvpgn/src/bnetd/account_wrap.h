@@ -22,6 +22,8 @@
 #ifndef INCLUDED_ACCOUNT_WRAP_PROTOS
 #define INCLUDED_ACCOUNT_WRAP_PROTOS
 
+#include <sstream> // Marc Bowes, Wed 7 Jan 2009
+
 #define JUST_NEED_TYPES
 #include "account.h"
 #include "connection.h"
@@ -241,8 +243,20 @@ extern int account_set_locale(t_account * account, int locale);
  Twilight modifications
  ======================
  See function definitions in account_wrap.cpp for details.
+ 
+ It should be noted that experience is the main control, not level. In theory,
+ account_get_level could just return account_get_experience after a conversion
+ is done. However, the conversion isn't a one-liner, so we make use of a cache
+ store. If one were to manually set BNET\level through the set command or
+ directly in the database, the change would only last until experience is
+ modified - after which the system will synchronise according to experience.
  */
+extern int account_convert_level_to_experience(int level);
+extern int account_convert_experience_to_level(int experience);
+extern int account_get_experience(t_account * account);
+extern int account_set_experience(t_account * account, int experience, t_account * setter);
 extern int account_get_level(t_account * account);
+extern int account_set_level(t_account * account, int level, t_account * setter);
 
 }
 
