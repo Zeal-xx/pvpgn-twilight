@@ -79,8 +79,13 @@ extern int account_get_auth_createnormalgame(t_account * account);
 extern int account_get_auth_joinnormalgame(t_account * account);
 extern int account_get_auth_createladdergame(t_account * account);
 extern int account_get_auth_joinladdergame(t_account * account);
+/*
+ Twilight modifications
+ ======================
+ See function definitions in account_wrap.cpp for details on changes to account_get/set_auth_lock
+ */
 extern int account_get_auth_lock(t_account * account);
-extern int account_set_auth_lock(t_account * account, int val);
+extern int account_set_auth_lock(t_account * account, int val, t_account * locker);
 
 /* profile */
 extern char const * account_get_sex(t_account * account); /* the profile attributes are updated directly in bnetd.c */
