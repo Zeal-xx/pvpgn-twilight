@@ -5199,10 +5199,19 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
 /*
  Twilight modifications
  ======================
- Author:  Marc Bowes, Tim Sjoberg
+ Authors: Marc Bowes, Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- Not Stub
+ Description of _handle_experience_command
+ -----------------------------------------
+ Returns a user's level in one of 3 ways.
+ 1. No user given
+    a. The current user isn't in game
+       lists current users' exp
+    b. The current user is in a game
+       lists all users/exp in the game
+ 2. A user is given
+    gives the user's exp (if found)
  */
 static int _handle_experience_command(t_connection * c, char const * text)
 {
@@ -5266,10 +5275,13 @@ static int _handle_experience_command(t_connection * c, char const * text)
 /*
  Twilight modifications
  ======================
- Author:  Marc Bowes, Tim Sjoberg
+ Authors: Marc Bowes, Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- Not Stub
+ Description of _handle_setexperience_command
+ --------------------------------------------
+ Sets the experience of the specified user. Will fail if the experience is out
+ of range - this range is controlled by the global min/max level setting.
  */
 static int _handle_setexperience_command(t_connection * c, char const * text)
 {
@@ -5283,11 +5295,11 @@ static int _handle_setexperience_command(t_connection * c, char const * text)
     return 0;
   } 
   
-  int new_experience;
-  params >> new_experience >> std::ws; // TODO: ws is there because in the future setexperience might require a reason
+  int experience;
+  params >> experience >> std::ws; // TODO: ws is there because in the future setexperience might require a reason
   
   //if (level < 0 || level > 100) { // FIXME: what are these limits, and how do we make them independent of level? or do we?
-  //  message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
+  //  message_send_text(c,message_type_error,c,"Specified value is out of bounds.");
   //  return 0;
   //}
   
@@ -5303,9 +5315,9 @@ static int _handle_setexperience_command(t_connection * c, char const * text)
     return 0;
   }
 
-  account_set_experience(account, new_experience, setter);
+  account_set_experience(account, experience, setter);
   std::stringstream message;
-  message << "User " << username << "'s experience has been changed to " << new_experience << ".";
+  message << "User " << username << "'s experience/level has been changed to " << experience << "/" << account_get_level(account) << ".";
   message_send_text(c,message_type_info,c,message.str().c_str());
   
   return 0;
@@ -5318,7 +5330,7 @@ static int _handle_setexperience_command(t_connection * c, char const * text)
  Date:    Wed 7 Jan 2009
  
  Description of _handle_level_command
- ---------------------------------------
+ -------------------------------------
  Returns a user's level in one of 3 ways.
  1. No user given
     a. The current user isn't in game
@@ -5396,9 +5408,7 @@ static int _handle_level_command(t_connection * c, char const * text)
  
  Description of _handle_setlevel_command
  ---------------------------------------
- Sets the specified user's level, provided it is within bounds. The other
- errors thrown are simply precautionary, but should they crop up.. be afraid!
- This could indicate a serious error in PVPGN.
+ Forwards onto _handle_setexperience_command after a sanity check
  */
 static int _handle_setlevel_command(t_connection * c, char const * text)
 {
@@ -5412,31 +5422,13 @@ static int _handle_setlevel_command(t_connection * c, char const * text)
     return 0;
   } 
   
-  int level;
+  int level, experience;
   params >> level >> std::ws; // TODO: ws is there because in the future setlevel might require a reason
+  experience = account_convert_level_to_experience(level);
   
-  if (level < 0 || level > 100) { // FIXME: these limits need to be specified in a config file
-    message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
-    return 0;
-  }
-  
-  t_account *account;
-  if (!(account = accountlist_find_account(username.c_str()))) {
-    message_send_text(c, message_type_info, c, "Invalid user.");
-    return 0;
-  }
-  
-  t_account *setter;
-  if (!(setter = conn_get_account(c))) {
-    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
-    return 0;
-  }
-
-  account_set_level(account, level, setter);
-  std::stringstream message;
-  message << "User " << username << "'s level has been changed to " << level << ".";
-  message_send_text(c,message_type_info,c,message.str().c_str());
-  return 0;
+  std::stringstream command;
+  command << "/setexperience " << username << " " << experience;
+  return _handle_setexperience_command(c, command.str().c_str());
 }
 
 /*
