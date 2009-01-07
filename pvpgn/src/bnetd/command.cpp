@@ -5199,26 +5199,115 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
 /*
  Twilight modifications
  ======================
- Author:  Marc Bowes
+ Author:  Marc Bowes, Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- Stub
+ Not Stub
  */
 static int _handle_experience_command(t_connection * c, char const * text)
 {
+  std::stringstream params(skip_command(text));
+  std::string username;
+  params >> username;
+  
+  t_account * account;
+  
+  // no username given?
+  
+  if (username.empty()) {
+    t_game * game;
+    
+    // in a game?
+    
+    if (game = conn_get_game(c)) {
+      std::stringstream message;
+      t_account * player;
+      for (unsigned int i = 0; i < game_get_count(game); i++) {
+        if (player = game_get_player(game, i)) {
+          message.clear();
+          message << account_get_name(player) << "'s experience is: " << account_get_experience(player);
+          message_send_text(c,message_type_info,c,message.str().c_str());
+        }
+      }
+      
+      return 0;
+    }
+    
+    // not in a game!
+    
+    if (!(account = conn_get_account(c))) {
+      message_send_text(c,message_type_info,c,"Your user account could not be retrieved, sorry.");
+      return 0;
+    }
+  
+    int userexperience = account_get_experience(account);
+    std::stringstream message;
+    message << "Your current experience is " << userexperience << ".";
+    message_send_text(c,message_type_info,c,message.str().c_str());
+    
+    return 0;
+  }
+  
+  // username given!
+  
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c,message_type_error,c,"Invalid user.");
+    return 0;
+  }
+  
+  int userexperience = account_get_experience(account);
+  std::stringstream message;
+  message << username << "'s experience is: " << userexperience << ".";
+  message_send_text(c,message_type_info,c,message.str().c_str());
+
   return 0;
 }
 
 /*
  Twilight modifications
  ======================
- Author:  Marc Bowes
+ Author:  Marc Bowes, Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- Stub
+ Not Stub
  */
 static int _handle_setexperience_command(t_connection * c, char const * text)
 {
+  std::stringstream params(skip_command(text));
+  std::string username;  
+  params >> username >> std::ws;
+  
+  //it doesn't matter if username is empty, it will fail on this check as well
+  if (params.eof()) {
+    message_send_text(c,message_type_info,c,"Syntax: /setexperience <username> <experience>");
+    return 0;
+  } 
+  
+  int new_experience;
+  params >> new_experience >> std::ws; // TODO: ws is there because in the future setexperience might require a reason
+  
+  //if (level < 0 || level > 100) { // FIXME: what are these limits, and how do we make them independent of level? or do we?
+  //  message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
+  //  return 0;
+  //}
+  
+  t_account *account;
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c, message_type_info, c, "Invalid user.");
+    return 0;
+  }
+  
+  t_account *setter;
+  if (!(setter = conn_get_account(c))) {
+    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
+    return 0;
+  }
+
+  account_set_experience(account, new_experience, setter);
+  std::stringstream message;
+  message << "User " << username << "'s experience has been changed to " << new_experience << ".";
+  message_send_text(c,message_type_info,c,message.str().c_str());
+  
   return 0;
 }
 
@@ -5324,7 +5413,7 @@ static int _handle_setlevel_command(t_connection * c, char const * text)
   } 
   
   int level;
-  params >> level >> std::ws; // TODO: ws is there because in the future lockacct might require a reason
+  params >> level >> std::ws; // TODO: ws is there because in the future setlevel might require a reason
   
   if (level < 0 || level > 100) { // FIXME: these limits need to be specified in a config file
     message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
