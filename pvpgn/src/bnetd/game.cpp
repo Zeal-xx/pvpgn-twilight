@@ -2288,6 +2288,21 @@ extern int game_discisloss(t_game *game)
     return  game->option==game_option_ladder_countasloss;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Atttribute reader for game->level
+ 
+ FIXME - stub method
+ */
+extern int game_get_level(t_game const *game)
+{
+  return 0;
+}
+
 }
 
 }

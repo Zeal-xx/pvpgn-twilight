@@ -2516,6 +2516,24 @@ extern int account_set_locale(t_account * account, int locale)
     return account_set_numattr(account,"WOL\\acct\\locale",locale);
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Attribute reader for BNET\level
+ */
+extern int account_get_level(t_account * account)
+{
+  if (!account) {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    return 0;
+  }
+  
+  return account_get_numattr(account,"BNET\\level");
+}
+
 }
 
 }

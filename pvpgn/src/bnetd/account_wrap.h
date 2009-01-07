@@ -237,6 +237,13 @@ extern int account_set_wol_apgar(t_account * account, char const * apgar);
 extern int account_get_locale(t_account * account);
 extern int account_set_locale(t_account * account, int locale);
 
+/*
+ Twilight modifications
+ ======================
+ See function definitions in account_wrap.cpp for details.
+ */
+extern int account_get_level(t_account * account);
+
 }
 
 }
