@@ -3443,6 +3443,22 @@ struct glist_cbdata {
     t_packet *rpacket;
 };
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _glist_cb
+ ------------------------
+ This function is used by gamelist_traverse.
+ Each iteration of the traversal will call this function with the parameters
+ for that game.
+ 
+ Modification description
+ ------------------------
+ The Experience System limits the games displayed (filter by level)
+ */
 static int _glist_cb(t_game * game, void *data)
 {
     struct glist_cbdata *cbdata = (struct glist_cbdata*)data;
@@ -3451,6 +3467,13 @@ static int _glist_cb(t_game * game, void *data)
     unsigned int addr;
     unsigned short port;
     bn_int game_spacer = { 1, 0, 0, 0 };
+    
+    // Twilight - filter out game if it is too high a level for the player
+    if (conn_can_join_game(cbdata->c, game)) {
+      eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because account is too low a level", conn_get_socket(cbdata->c));
+    	return 0;    
+    }
+    // ---
 
     cbdata->tcount++;
     eventlog(eventlog_level_debug, __FUNCTION__, "[%d] considering listing game=\"%s\", pass=\"%s\" clienttag=\"%s\" gtype=%d", conn_get_socket(cbdata->c), game_get_name(game), game_get_pass(game), tag_uint_to_str(clienttag_str, game_get_clienttag(game)), (int) game_get_type(game));
@@ -3526,6 +3549,22 @@ static int _glist_cb(t_game * game, void *data)
     return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _client_gamelistreq
+ ----------------------------------
+ This function builds a list of games. However, it is also used when a client
+ requests information on a specific game - therefore it is not good enough to
+ reply on _glist_cb to do the required modifications.
+ 
+ Modification description
+ ------------------------
+ The Experience System limits the games displayed (filter by level)
+ */
 static int _client_gamelistreq(t_connection * c, t_packet const *const packet)
 {
     t_packet *rpacket;
@@ -3568,7 +3607,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const *const packet)
     /* specific game requested? */
     if (gamename[0] != '\0') {
 	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\" pass=\"%s\"", conn_get_socket(c), tag_uint_to_str(clienttag_str, clienttag), bngtype, (int) gtype, gamename, gamepass);
-	if ((game = gamelist_find_game(gamename, clienttag, gtype))) {
+	if ((game = gamelist_find_game(gamename, clienttag, gtype)) && conn_can_join_game(c, game)) {
 	    /* game found but first we need to make sure everything is OK */
 	    bn_int_set(&rpacket->u.server_gamelistreply.gamecount, 0);
 	    switch (game_get_status(game)) {

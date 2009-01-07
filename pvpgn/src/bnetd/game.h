@@ -351,7 +351,7 @@ extern int game_discisloss(t_game *game);
  ======================
  See function definitions in game.cpp for details.
  */
-extern int game_get_level(t_game const * game);
+extern int game_get_level(t_game * game);
 extern int game_set_level(t_game * game, int level);
 
 }

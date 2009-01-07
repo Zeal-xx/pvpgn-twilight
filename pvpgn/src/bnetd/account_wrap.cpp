@@ -2674,6 +2674,29 @@ extern int account_set_level(t_account * account, int level, t_account * setter)
   return account_set_experience(account, account_convert_level_to_experience(level), setter);
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Returns turn if the account has level >= the access level set on the game
+ FIXME: is there a better place for this?
+ */
+extern bool account_can_join_game(t_account * account, t_game * game)
+{
+  // retrieve level of the player and game
+  int player_level  = account_get_level(account);
+  int game_level    = game_get_level(game);
+  
+  // filter out game if it is too high a level for the player
+  if (player_level < game_level) {
+    return false;
+  }
+  
+  return true;
+}
+
 }
 
 }

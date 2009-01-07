@@ -4200,6 +4200,25 @@ extern int conn_set_access_level(t_connection * connection, int access_level)
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Retrieves account, then forwards onto account_can_join_game
+ */
+extern bool conn_can_join_game(t_connection * connection, t_game * game)
+{
+  t_account *account;
+  if (account = conn_get_account(connection)) {
+  	ERROR0("got NULL account");
+  	return false;
+  }
+  
+  return account_can_join_game(account, game);
+}
+
 }
 
 }

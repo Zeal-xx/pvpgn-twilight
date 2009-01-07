@@ -482,6 +482,8 @@ extern t_anongame_wol_player * conn_wol_get_anongame_player(t_connection * c);
 extern int conn_get_access_level(t_connection * connection);
 extern int conn_set_access_level(t_connection * connection, int access_level);
 
+extern bool conn_can_join_game(t_connection * connection, t_game * game);
+
 }
 
 }

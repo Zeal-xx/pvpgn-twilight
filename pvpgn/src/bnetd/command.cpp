@@ -3017,20 +3017,9 @@ static int _glist_cb(t_game *game, void *data)
     	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because game is not open", conn_get_socket(cbdata->c));
     	return 0;
     }
-    // ---
-    
-    // Twilight - retrieve level of the player and game
-    t_connection *player_connection = cbdata->c;
-    t_account    *player_account;
-    if (player_account = conn_get_account(player_connection)) {
-    	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because account could not be retrieved", conn_get_socket(cbdata->c));
-    	return 0;
-    }
-    int player_level  = account_get_level(player_account);
-    int game_level    = game_get_level(game);
     
     // Twilight - filter out game if it is too high a level for the player
-    if (player_level < game_level) {
+    if (conn_can_join_game(cbdata->c, game)) {
       eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because account is too low a level", conn_get_socket(cbdata->c));
     	return 0;
     }

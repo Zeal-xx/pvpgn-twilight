@@ -2313,7 +2313,7 @@ extern int game_discisloss(t_game *game)
  
  Atttribute reader for game->level
  */
-extern int game_get_level(t_game const * game)
+extern int game_get_level(t_game * game)
 {
   if (!game)
   {

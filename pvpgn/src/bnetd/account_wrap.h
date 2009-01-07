@@ -22,7 +22,8 @@
 #ifndef INCLUDED_ACCOUNT_WRAP_PROTOS
 #define INCLUDED_ACCOUNT_WRAP_PROTOS
 
-#include <sstream> // Marc Bowes, Wed 7 Jan 2009
+#include <sstream>  // Marc Bowes, Wed 7 Jan 2009
+#include "game.h"   // Marc Bowes, Wed 7 Jan 2009
 
 #define JUST_NEED_TYPES
 #include "account.h"
@@ -30,7 +31,6 @@
 #include "character.h"
 #include "common/bnettime.h"
 #include "ladder.h"
-#include "game.h"
 #include "common/tag.h"
 #undef JUST_NEED_TYPES
 
@@ -262,6 +262,8 @@ extern int account_get_experience(t_account * account);
 extern int account_set_experience(t_account * account, int experience, t_account * setter);
 extern int account_get_level(t_account * account);
 extern int account_set_level(t_account * account, int level, t_account * setter);
+
+extern bool account_can_join_game(t_account * account, t_game * game);
 
 }
 
