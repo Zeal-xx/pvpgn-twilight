@@ -5176,7 +5176,7 @@ static int _handle_level_command(t_connection * c, char const * text)
     message_send_text(c, message_type_info, c, ss.str().c_str());
   } else
   {
-    t_account* pAccount = accountlist_find_account(usrnick);
+    t_account* pAccount = accountlist_find_account(username.c_str());
 
     if (pAccount != NULL)
     {
