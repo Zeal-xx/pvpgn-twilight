@@ -375,7 +375,20 @@ extern char const * game_difficulty_get_str(unsigned difficulty)
     }
 }
 
-
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of game_create
+ --------------------------
+ Fills in game defaults.
+ 
+ Modification description
+ ------------------------
+ Set defaults for game->level
+ */
 extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag, unsigned long gameversion)
 {
     t_game * game;
@@ -449,6 +462,10 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->description   = NULL;
     game->flag  	= std::strcmp(pass,"") ? game_flag_private : game_flag_none;
     game->difficulty    = game_difficulty_none;
+    
+    // Twilight
+    game->level         = 0;
+    // ---
 
     game_parse_info(game,info);
 
@@ -2295,11 +2312,35 @@ extern int game_discisloss(t_game *game)
  Date:    Wed 7 Jan 2009
  
  Atttribute reader for game->level
- 
- FIXME - stub method
  */
-extern int game_get_level(t_game const *game)
+extern int game_get_level(t_game const * game)
 {
+  if (!game)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
+    return 0;
+  }
+  
+  return game->level;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Attribute setter for game->level
+ */
+extern int game_set_level(t_game * game, int level)
+{
+  if (!game)
+  {
+  	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
+    return -1;
+  }
+  
+  game->level = level;
   return 0;
 }
 

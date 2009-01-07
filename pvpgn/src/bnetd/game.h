@@ -210,23 +210,7 @@ typedef struct game
     t_game_result *   results;
     t_game_result * * reported_results;
     char const * *    report_heads;
-    char const * *    report_bodies;/*
- Twilight modifications
- ======================
- Author:  Marc Bowes
- Date:    Wed 7 Jan 2009
- 
- Description of _glist_cb
- ------------------------
- This function is used by gamelist_traverse.
- Each iteration of the traversal will call this function with the parameters
- for that game.
- 
- Modification description
- ------------------------
- The Experience System limits the games displayed (filter by level).
- In a similar manner go _glist_cb in handle_bnet.cpp, started games are hidden
- */
+    char const * *    report_bodies;
 
     std::time_t            create_time;
     std::time_t            start_time;
@@ -236,6 +220,13 @@ typedef struct game
     char const *      description;
     t_game_flag       flag;
     t_elist	      glist_link;
+    
+    /*
+     Twilight modifications
+     ======================
+     Game internal access, see inline comments where relevent.
+    */
+    int               level; // used to set access level on a game # Marc Bowes, Wed 7 Jan 2000
 }
 #endif
 t_game;
@@ -353,6 +344,7 @@ extern int game_discisloss(t_game *game);
  See function definitions in game.cpp for details.
  */
 extern int game_get_level(t_game const * game);
+extern int game_set_level(t_game * game, int level);
 
 }
 
