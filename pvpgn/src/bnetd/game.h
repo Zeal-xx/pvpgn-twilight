@@ -272,7 +272,15 @@ extern char const * game_maptype_get_str(t_game_maptype maptype) ;
 extern char const * game_tileset_get_str(t_game_tileset tileset) ;
 extern char const * game_speed_get_str(t_game_speed speed) ;
 extern char const * game_difficulty_get_str(unsigned difficulty) ;
-extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag,unsigned long gameversion) ;
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Added access_level as a final parameter
+ */
+extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag,unsigned long gameversion, int access_level) ;
 extern unsigned int game_get_id(t_game const * game);
 extern char const * game_get_name(t_game const * game);
 extern t_game_type game_get_type(t_game const * game);

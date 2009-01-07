@@ -387,9 +387,9 @@ extern char const * game_difficulty_get_str(unsigned difficulty)
  
  Modification description
  ------------------------
- Set defaults for game->level
+ Added in a parameter to control the access level of this game.
  */
-extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag, unsigned long gameversion)
+extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag, unsigned long gameversion, int access_level)
 {
     t_game * game;
 
@@ -464,7 +464,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->difficulty    = game_difficulty_none;
     
     // Twilight
-    game->level         = 0;
+    game->level         = access_level;
     // ---
 
     game_parse_info(game,info);

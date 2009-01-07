@@ -2131,7 +2131,23 @@ extern t_game * conn_get_game(t_connection const * c)
     return c->protocol.game;
 }
 
-
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of conn_set_game
+ ----------------------------
+ Actually the commments just below do a pretty good job explaining already, but..
+ either the internet connection access points to an existing game (join), or
+ it creates it..
+ 
+ Modification description
+ ------------------------
+ Simple modification - just passes on the access level of this connection to
+ the call to game_create.
+ */
 extern int conn_set_game(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version)
 /*
  * If game not exists (create) version != 0 (called in handle_bnet.c, function _client_startgameX())
@@ -2159,7 +2175,9 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	if (!(c->protocol.game = gamelist_find_game_available(gamename,c->protocol.client.clienttag,type))
 	    && !gamelist_find_game_available(gamename,c->protocol.client.clienttag,game_type_all)) {
         /* do not allow creation of games with same name of same clienttag when game is not started or done */
-	    c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c));
+      // Twilight - added access_level to the end of the game_create params
+	    c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c),c->access_level);
+	    // ---
 
 	    if (c->protocol.game && conn_get_realm(c) && conn_get_charname(c)) {
 		game_set_realmname(c->protocol.game,realm_get_name(conn_get_realm(c)));

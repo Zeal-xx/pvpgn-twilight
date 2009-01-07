@@ -22,7 +22,7 @@ traditional W3XP AUP. For example, for DotA, will your server tolerate leavers,
 item poolers, laggers, feeders.. there are a host of control issues - none of
 which can be moderated via traditional Battle.NET controls.
 
-The Twilight modifications have been running on Twilight[http://war3.co.za] with
+The Twilight modifications have been running on [Twilight](http://war3.co.za) with
 much success for the better part of a year. The original source was based off
 PVPGN 1.99.r384 (a snapshot at the time), and has been maintained with SVN.
 Since then, there have been many requests for the source. While originally
