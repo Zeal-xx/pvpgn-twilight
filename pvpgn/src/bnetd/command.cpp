@@ -345,6 +345,16 @@ static int _handle_topic_command(t_connection * c, char const * text);
 static int _handle_moderate_command(t_connection * c, char const * text);
 static int _handle_clearstats_command(t_connection * c, char const * text);
 static int _handle_tos_command(t_connection * c, char const * text);
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Wed 7 Jan 2009
+ 
+ function declarations for xp system related functions
+ */
+static int _handle_setlevel_command(t_connection * c, char const * text);
+static int _handle_level_command(t_connection * c, char const * text);
 
 
 static const t_command_table_row standard_command_table[] =
@@ -392,6 +402,18 @@ static const t_command_table_row standard_command_table[] =
 	{ "/ban"                , _handle_ban_command },
 	{ "/unban"              , _handle_unban_command },
 	{ "/tos"                , _handle_tos_command },
+	
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Wed 7 Jan 2009
+ 
+ adding xp systems related functions to the commands list
+ */
+  { "/setlevel"           , _handle_setlevel_command },
+  { "/level"              , _handle_level_command },
+	
 	{ NULL                  , NULL }
 
 };
@@ -5079,6 +5101,99 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
     ladders.update();
 
     return 0;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Wed 7 Jan 2009
+ 
+ xp system related functions
+ */
+
+static int _handle_setlevel_command(t_connection * c, char const * text)
+{
+  std::stringstream ss(skip_command(text));
+  std::string username;
+  int new_level;
+  
+  ss >> username >> std::ws;
+  
+  //it doesn't matter if username is empty, it will fail on this check as well
+  if (ss.eof())
+  {
+    message_send_text(c, message_type_info, c, "Syntax: /setuserap username aplevel.");
+    return 0;
+  } 
+  
+  ss >> new_level;
+
+  t_account* pAccount = accountlist_find_account(username.c_str());
+
+  if (pAccount != NULL)
+  {
+    if ( ! ( (new_level > 100) || (new_level < 0) ) ) /* FIXME: these limits need to be specified in a config file */
+    {
+      account_set_level(pAccount, new_level, conn_get_account(c));
+
+      std::stringstream log_message;
+      log_message << "User " << username << "'s level has been changed to " << new_level << ".";
+      
+      message_send_text(c, message_type_info, c, log_message.str().c_str());
+      
+      log_message.clear();
+      log_message << conn_get_loggeduser(c) << " changed " << username << "'s level to " << new_level;
+      
+      eventlog(eventlog_level_error,__FUNCTION__, log_message.str().c_str());
+    } else
+    {
+      message_send_text(c, message_type_info, c, "Level specified is not valid.");
+    }
+  } else
+  {
+    message_send_text(c, message_type_info, c, "Username specified is not valid.");
+  }
+  
+  return 0;
+}
+
+static int _handle_level_command(t_connection * c, char const * text)
+{
+  std::stringstream ss(skip_command(text));
+  std::string username;
+  
+  ss >> username;
+
+  if (username.length() == 0)
+  {
+    t_account* pAccount = conn_get_account(c);
+    int userlevel = account_get_numattr(pAccount, "BNET\\point\\system");
+
+    ss.clear();
+    ss << "Local user ap is: " << userlevel << ". This is maximum level the user can set Access Level(AL) to, using the /setal command.";
+
+    message_send_text(c, message_type_info, c, ss.str().c_str());
+  } else
+  {
+    t_account* pAccount = accountlist_find_account(usrnick);
+
+    if (pAccount != NULL)
+    {
+      int userlevel = account_get_numattr(pAccount, "BNET\\point\\system");
+      char szPoints[128];
+
+      ss.clear();
+      ss << "User " << username << "'s level is: " << userlevel << ". This is maximum level the user can set Access Level(AL) to, using the /setal command.";
+
+      message_send_text(c, message_type_info, c, ss.str().c_str());
+    } else
+    {
+      message_send_text(c, message_type_info, c, "Username specified is not valid.");
+    }
+  }
+
+  return 0;
 }
 
 }
