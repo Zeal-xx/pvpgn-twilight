@@ -406,18 +406,6 @@ static const t_command_table_row standard_command_table[] =
 	{ "/unban"              , _handle_unban_command },
 	{ "/tos"                , _handle_tos_command },
 	
-/*
- Twilight modifications
- ======================
- Author:  Tim Sjoberg
- Date:    Wed 7 Jan 2009
- 
- Command hookup - see command definitions
- */
-  { "/level"              , _handle_level_command },
-  { "/setal"              , _handle_setal_command },
-  { "/getal"              , _handle_getal_command },
-	
 	{ NULL                  , NULL }
 
 };
@@ -490,12 +478,14 @@ static const t_command_table_row extended_command_table[] =
  Author:  Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- adding xp systems related functions to the extended commands list
+ Command hookup - see command definitions
  */
   { "/setlevel"              , _handle_setlevel_command },
-  
+  { "/level"              , _handle_level_command },
+  { "/setal"              , _handle_setal_command },
+  { "/getal"              , _handle_getal_command },
 
-        { NULL                  , NULL }
+  { NULL                  , NULL }
 
 };
 
@@ -5201,12 +5191,14 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
 /*
  Twilight modifications
  ======================
- Author:  Tim Sjoberg
+ Authors: Tim Sjoberg, Marc Bowes
  Date:    Wed 7 Jan 2009
  
  Description of _handle_setlevel_command
  ---------------------------------------
- 
+ Sets the specified user's level, provided it is within bounds. The other
+ errors thrown are simply precautionary, but should they crop up.. be afraid!
+ This could indicate a serious error in PVPGN.
  */
 static int _handle_setlevel_command(t_connection * c, char const * text)
 {
@@ -5247,41 +5239,80 @@ static int _handle_setlevel_command(t_connection * c, char const * text)
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Authors: Tim Sjoberg, Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of _handle_level_command
+ ---------------------------------------
+ Returns a user's level in one of 3 ways.
+ 1. No user given
+    a. The current user isn't in game
+       lists current users' level
+    b. The current user is in a game
+       lists all users/levels in the game
+ 2. A user is given
+    gives the user's level (if found)
+ */
 static int _handle_level_command(t_connection * c, char const * text)
 {
-  std::stringstream ss(skip_command(text));
+ 
+  std::stringstream params(skip_command(text));
   std::string username;
+  params >> username;
   
-  ss >> username;
-
-  if (username.length() == 0)
-  {
-    t_account* pAccount = conn_get_account(c);
-    int userlevel = account_get_level(pAccount);
-
-    ss.clear();
-    ss << "Local user ap is: " << userlevel << ". This is maximum level the user can set Access Level(AL) to, using the /setal command.";
-
-    message_send_text(c, message_type_info, c, ss.str().c_str());
-  } else
-  {
-    t_account* pAccount = accountlist_find_account(username.c_str());
-
-    if (pAccount != NULL)
-    {
-      int userlevel = account_get_level(pAccount);
-      char szPoints[128];
-
-      ss.clear();
-      ss << "User " << username << "'s level is: " << userlevel << ". This is maximum level the user can set Access Level(AL) to, using the /setal command.";
-
-      message_send_text(c, message_type_info, c, ss.str().c_str());
-    } else
-    {
-      message_send_text(c, message_type_info, c, "Username specified is not valid.");
+  t_account * account;
+  
+  // no username given?
+  
+  if (username.empty()) {
+    t_game * game;
+    
+    // in a game?
+    
+    if (game = conn_get_game(c)) {
+      std::stringstream message;
+      t_account * player;
+      for (unsigned int i = 0; i < game_get_count(game); i++) {
+        if (player = game_get_player(game, i)) {
+          message.clear();
+          message << account_get_name(player) << " is level " << account_get_level(player);
+          message_send_text(c,message_type_info,c,message.str().c_str());
+        }
+      }
+      
+      return 0;
     }
+    
+    // not in a game!
+    
+    if (!(account = conn_get_account(c))) {
+      message_send_text(c,message_type_info,c,"Your user account could not be retrieved, sorry.");
+      return 0;
+    }
+  
+    int level = account_get_level(account);
+    std::stringstream message;
+    message << "Your level is " << level << ".";
+    message_send_text(c,message_type_info,c,message.str().c_str());
+    
+    return 0;
   }
-
+  
+  // username given!
+  
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c,message_type_error,c,"Invalid user.");
+    return 0;
+  }
+  
+  int level = account_get_level(account);
+  std::stringstream message;
+  message << username << "'s level is: " << level << ".";
+  message_send_text(c,message_type_info,c,message.str().c_str());
+  
   return 0;
 }
 
