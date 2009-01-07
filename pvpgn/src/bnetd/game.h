@@ -225,7 +225,7 @@ typedef struct game
      Twilight modifications
      ======================
      Game internal access, see inline comments where relevent.
-    */
+     */
     int               level; // used to set access level on a game # Marc Bowes, Wed 7 Jan 2000
 }
 #endif

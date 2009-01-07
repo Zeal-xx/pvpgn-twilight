@@ -214,6 +214,13 @@ typedef struct connection
 	/* connection flag substituting some other values */
 	unsigned int		cflags;
    } protocol;
+   
+  /*
+   Twilight modifications
+   ======================
+   Connection internal access, see inline comments where relevent.
+   */
+  int access_level; // used to set access level for hosting games # Marc Bowes, Wed 7 Jan 2000
 }
 #endif
 t_connection;
@@ -466,6 +473,14 @@ extern void conn_wol_set_pageme(t_connection * c, int pageme);
 extern int conn_wol_get_pageme(t_connection * c);
 extern void conn_wol_set_anongame_player(t_connection * c, t_anongame_wol_player * anongame_player);
 extern t_anongame_wol_player * conn_wol_get_anongame_player(t_connection * c);
+
+/*
+ Twilight modifications
+ ======================
+ See function definitions in connection.cpp for details.
+ */
+extern int conn_get_access_level(t_connection * connection);
+extern int conn_set_access_level(t_connection * connection, int access_level);
 
 }
 
