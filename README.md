@@ -78,7 +78,7 @@ installed, you should be able to (assuming NIX environment):
     % cd build
     % cmake ../pvpgn
     % make
-  
+
 For further information, please see
 [README.cmake](http://github.com/marcbowes/pvpgn-twilight/tree/master/pvpgn/README.cmake)
 
