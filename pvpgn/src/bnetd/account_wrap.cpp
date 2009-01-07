@@ -2592,12 +2592,14 @@ extern int account_set_experience(t_account * account, int experience, t_account
 {
   if (!account) {
     ERROR0("got NULL account");
-    return 0;
+    return -1;
   }
   
   int current_experience  = account_get_experience(account);
   int current_level       = account_get_level(account);
   int level               = account_convert_experience_to_level(experience);
+  
+  // FIXME: check against global min/max
   
   // ensure legal AL before altering level
   t_connection * connection;
@@ -2617,6 +2619,8 @@ extern int account_set_experience(t_account * account, int experience, t_account
   } else {
     eventlog(eventlog_level_debug,__FUNCTION__,"%s by system",log_message.str().c_str());
   }
+  
+  return 0;
 }
 
 /*

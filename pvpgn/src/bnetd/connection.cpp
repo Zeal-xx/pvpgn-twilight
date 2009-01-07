@@ -329,6 +329,20 @@ extern char const * conn_state_get_str(t_conn_state state)
 
 extern int conn_set_realm_cb(void *data, void *newref);
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of conn_create
+ --------------------------
+ Fills in connection defaults.
+ 
+ Modification description
+ ------------------------
+ Set defaults for game->access_level
+ */
 extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_addr, unsigned short real_local_port, unsigned int local_addr, unsigned short local_port, unsigned int addr, unsigned short port)
 {
     t_connection * temp;
@@ -430,6 +444,10 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 
 
     temp->protocol.cflags                        = 0;
+    
+    // Twilight
+    temp->access_level                           = 0;
+    // ---
 
     list_prepend_data(conn_head,temp);
 
@@ -1401,7 +1419,20 @@ extern void conn_set_tzbias(t_connection * c, int tzbias)
     c->protocol.client.tzbias = tzbias;
 }
 
-
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Description of conn_set_account
+ -------------------------------
+ Attaches an account to a connection.
+ 
+ Modification description
+ ------------------------
+ Uses account to determine a suitable default access level.
+ */
 static void conn_set_account(t_connection * c, t_account * account)
 {
     t_connection * other;
@@ -1470,6 +1501,11 @@ static void conn_set_account(t_connection * c, t_account * account)
     totalcount++;
 
     watchlist->dispatch(c->protocol.account, NULL, c->protocol.client.clienttag, Watch::ET_login);
+    
+    // Twilight - set a default access_level for this account (as high as possible)
+    // FIXME: maybe we should use a more intelligent system, such as average level?
+    conn_set_access_level(c, account_get_level(account));
+    // ---
 
     return;
 }
@@ -4095,6 +4131,55 @@ extern t_anongame_wol_player * conn_wol_get_anongame_player(t_connection * c)
     }
 
     return c->protocol.wol.anongame_player;
+}
+
+/*
+ Twilight modificiations
+ =======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Returns the access level of the connection
+ */
+extern int conn_get_access_level(t_connection * connection)
+{
+  if (!connection) {
+  	ERROR0("got NULL conn");
+  	return 0; // FIXME: global min level
+  }
+  
+  return connection->access_level;
+}
+
+/*
+ Twilight modificiations
+ =======================
+ Author:  Marc Bowes
+ Date:    Wed 7 Jan 2009
+ 
+ Sets the access level of the connection, value between global minimum level
+ and account's maximum level
+ */
+extern int conn_set_access_level(t_connection * connection, int access_level)
+{
+  if (!connection) {
+  	ERROR0("got NULL conn");
+  	return -1;
+  }
+  
+  t_account * account;
+  if (!(account = conn_get_account(connection))) {
+    ERROR0("got NULL account");
+    return -1;
+  }
+  
+  int level = account_get_level(account);
+  if (access_level < 0 /* FIXME: global min */ || access_level > level) {
+    return -1;
+  }
+  
+  connection->access_level = access_level;
+  return 0;
 }
 
 }

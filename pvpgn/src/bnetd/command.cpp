@@ -2999,14 +2999,14 @@ static int _glist_cb(t_game *game, void *data)
 {
     struct glist_cb_struct *cbdata = (struct glist_cb_struct*)data;
     
-    // filter out game if it is not-open (if this is set in the preferences)
+    // Twilight - filter out game if it is not-open (if this is set in the preferences)
     if (prefs_get_hide_started_games() && game_get_status(game) != game_status_open) {
     	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because game is not open", conn_get_socket(cbdata->c));
     	return 0;
     }
     // ---
     
-    // retrieve level of the player and game
+    // Twilight - retrieve level of the player and game
     t_connection *player_connection = cbdata->c;
     t_account    *player_account;
     if (player_account = conn_get_account(player_connection)) {
@@ -3016,7 +3016,7 @@ static int _glist_cb(t_game *game, void *data)
     int player_level  = account_get_level(player_account);
     int game_level    = game_get_level(game);
     
-    // filter out game if it is too high a level for the player
+    // Twilight - filter out game if it is too high a level for the player
     if (player_level < game_level) {
       eventlog(eventlog_level_debug, __FUNCTION__, "[%d] not listing because account is too low a level", conn_get_socket(cbdata->c));
     	return 0;
