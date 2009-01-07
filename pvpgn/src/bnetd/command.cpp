@@ -355,6 +355,8 @@ static int _handle_tos_command(t_connection * c, char const * text);
  */
 static int _handle_setlevel_command(t_connection * c, char const * text);
 static int _handle_level_command(t_connection * c, char const * text);
+static int _handle_setal_command(t_connection * c, char const * text);
+static int _handle_getal_command(t_connection * c, char const * text);
 
 
 static const t_command_table_row standard_command_table[] =
@@ -411,8 +413,9 @@ static const t_command_table_row standard_command_table[] =
  
  adding xp systems related functions to the commands list
  */
-  { "/setlevel"           , _handle_setlevel_command },
   { "/level"              , _handle_level_command },
+  { "/setal"              , _handle_setal_command },
+  { "/getal"              , _handle_getal_command },
 	
 	{ NULL                  , NULL }
 
@@ -479,6 +482,17 @@ static const t_command_table_row extended_command_table[] =
 	{ "/topic"		, _handle_topic_command },
 	{ "/moderate"		, _handle_moderate_command },
 	{ "/clearstats"		, _handle_clearstats_command },
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Wed 7 Jan 2009
+ 
+ adding xp systems related functions to the extended commands list
+ */
+  { "/setlevel"              , _handle_setlevel_command },
+  
 
         { NULL                  , NULL }
 
@@ -5248,7 +5262,7 @@ static int _handle_level_command(t_connection * c, char const * text)
   if (username.length() == 0)
   {
     t_account* pAccount = conn_get_account(c);
-    int userlevel = account_get_numattr(pAccount, "BNET\\point\\system");
+    int userlevel = account_get_level(pAccount);
 
     ss.clear();
     ss << "Local user ap is: " << userlevel << ". This is maximum level the user can set Access Level(AL) to, using the /setal command.";
@@ -5260,7 +5274,7 @@ static int _handle_level_command(t_connection * c, char const * text)
 
     if (pAccount != NULL)
     {
-      int userlevel = account_get_numattr(pAccount, "BNET\\point\\system");
+      int userlevel = account_get_level(pAccount);
       char szPoints[128];
 
       ss.clear();
@@ -5273,6 +5287,56 @@ static int _handle_level_command(t_connection * c, char const * text)
     }
   }
 
+  return 0;
+}
+
+static int _handle_getal_command(t_connection * c, char const * text)
+{
+  std::stringstream ss;
+  ss << "Your game access level(AL) is currently set to: " << conn_get_access_level(c) <<". Only users with this level or above can join your games.";
+
+  message_send_text(c, message_type_info, c, ss.str().c_str());
+
+  return 0;
+}
+
+static int _handle_setal_command(t_connection * c, char const * text)
+{
+  std::stringstream ss(skip_command(text));
+  
+  ss >> std::ws;
+    
+  //it doesn't matter if username is empty, it will fail on this check as well
+  if (ss.eof())
+  {
+    message_send_text(c, message_type_info, c, "Setal allows you to set your access level and prevent users with lower levels from joining. Usage: /setal <level>");
+    message_send_text(c, message_type_info, c, "  e.g. /setal 2");
+    return 0;
+  }
+  
+  int new_access_level;
+  ss >> new_access_level;
+  
+  t_account* pAccount = conn_get_account(c);
+  int userlevel = account_get_level(pAccount);
+  
+  ss.clear();
+  
+  if (new_access_level > userlevel)
+  {
+    ss << "Error: you cannot set your access level higher than your level. Your current level is " << userlevel;
+    message_send_text(c, message_type_info, c, ss.str().c_str());
+  } else if (new_access_level < 0) /* FIXME: this needs to be in the config file */
+  {
+    ss << "Error: " << new_access_level << " is below the minimum level";
+    message_send_text(c, message_type_info, c, ss.str().c_str());
+  } else 
+  {
+    conn_set_access_level(c, new_access_level);
+    ss << "Success! Your game access level(AL) has been changed to " << new_access_level << ". Only users with this value or above can join your games.";
+    message_send_text(c, message_type_info, c, ss.str().c_str());
+  }
+  
   return 0;
 }
 
