@@ -345,13 +345,14 @@ static int _handle_topic_command(t_connection * c, char const * text);
 static int _handle_moderate_command(t_connection * c, char const * text);
 static int _handle_clearstats_command(t_connection * c, char const * text);
 static int _handle_tos_command(t_connection * c, char const * text);
+
 /*
  Twilight modifications
  ======================
  Author:  Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- function declarations for xp system related functions
+ Function declarations for exp system related functions
  */
 static int _handle_setlevel_command(t_connection * c, char const * text);
 static int _handle_level_command(t_connection * c, char const * text);
@@ -409,7 +410,7 @@ static const t_command_table_row standard_command_table[] =
  Author:  Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- adding xp systems related functions to the commands list
+ Command hookup - see command definitions
  */
   { "/setlevel"           , _handle_setlevel_command },
   { "/level"              , _handle_level_command },
@@ -5189,52 +5190,46 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
  Author:  Tim Sjoberg
  Date:    Wed 7 Jan 2009
  
- xp system related functions
+ Description of _handle_setlevel_command
+ ---------------------------------------
+ 
  */
-
 static int _handle_setlevel_command(t_connection * c, char const * text)
 {
-  std::stringstream ss(skip_command(text));
-  std::string username;
-  int new_level;
-  
-  ss >> username >> std::ws;
+  std::stringstream params(skip_command(text));
+  std::string username;  
+  params >> username >> std::ws;
   
   //it doesn't matter if username is empty, it will fail on this check as well
-  if (ss.eof())
-  {
-    message_send_text(c, message_type_info, c, "Syntax: /setuserap username aplevel.");
+  if (params.eof()) {
+    message_send_text(c,message_type_info,c,"Syntax: /setlevel <username> <level>");
     return 0;
   } 
   
-  ss >> new_level;
-
-  t_account* pAccount = accountlist_find_account(username.c_str());
-
-  if (pAccount != NULL)
-  {
-    if ( ! ( (new_level > 100) || (new_level < 0) ) ) /* FIXME: these limits need to be specified in a config file */
-    {
-      account_set_level(pAccount, new_level, conn_get_account(c));
-
-      std::stringstream log_message;
-      log_message << "User " << username << "'s level has been changed to " << new_level << ".";
-      
-      message_send_text(c, message_type_info, c, log_message.str().c_str());
-      
-      log_message.clear();
-      log_message << conn_get_loggeduser(c) << " changed " << username << "'s level to " << new_level;
-      
-      eventlog(eventlog_level_error,__FUNCTION__, log_message.str().c_str());
-    } else
-    {
-      message_send_text(c, message_type_info, c, "Level specified is not valid.");
-    }
-  } else
-  {
-    message_send_text(c, message_type_info, c, "Username specified is not valid.");
+  int level;
+  params >> level >> std::ws; // TODO: ws is there because in the future lockacct might require a reason
+  
+  if (level < 0 || level > 100) { // FIXME: these limits need to be specified in a config file
+    message_send_text(c,message_type_error,c,"Specified level is out of bounds.");
+    return 0;
   }
   
+  t_account *account;
+  if (!(account = accountlist_find_account(username.c_str()))) {
+    message_send_text(c, message_type_info, c, "Invalid user.");
+    return 0;
+  }
+  
+  t_account *setter;
+  if (!(setter = conn_get_account(c))) {
+    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
+    return 0;
+  }
+
+  account_set_level(account, level, setter);
+  std::stringstream message;
+  message << "User " << username << "'s level has been changed to " << level << ".";
+  message_send_text(c,message_type_info,c,message.str().c_str());
   return 0;
 }
 
