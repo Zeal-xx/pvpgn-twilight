@@ -26,5 +26,6 @@ compiles, it is not meant to be run. It has not been tested by the developers.
 These changes will migrate into a versioned release once testing is complete.*
 
 * experience command shows experience to next level
+* setal checks bounds against global min/max and user's level
 
 [expsys]: http://wiki.github.com/marcbowes/pvpgn-twilight/experience-system "Experience System @ PVPGN-Twilight Wiki"

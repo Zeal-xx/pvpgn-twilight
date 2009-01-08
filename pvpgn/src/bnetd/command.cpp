@@ -5457,42 +5457,60 @@ static int _handle_getal_command(t_connection * c, char const * text)
   return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Authors: Tim Sjoberg, Marc Bowes
+ Dates:   Wed 7 Jan 2009, Thur 8 Jan 2009
+ 
+ Description of _handle_setal_command
+ ---------------------------------------
+ Sets the user's access level - used to control the level at which they will
+ host their games. Limited to [global min, min(global max, their level)]
+ */
 static int _handle_setal_command(t_connection * c, char const * text)
 {
-  std::stringstream ss(skip_command(text));
+  std::stringstream params(skip_command(text));
   
-  ss >> std::ws;
+  params >> std::ws;
     
   //it doesn't matter if username is empty, it will fail on this check as well
-  if (ss.eof())
-  {
-    message_send_text(c, message_type_info, c, "Setal allows you to set your access level and prevent users with lower levels from joining. Usage: /setal <level>");
-    message_send_text(c, message_type_info, c, "  e.g. /setal 2");
+  if (params.eof()) {
+    message_send_text(c,message_type_info,c,"Setal allows you to set your access level and prevent users with lower levels from joining. Usage: /setal <level>");
+    message_send_text(c,message_type_info,c,"  e.g. /setal 2");
     return 0;
   }
   
-  int new_access_level;
-  ss >> new_access_level;
+  int access_level;
+  params >> access_level;
   
-  t_account* pAccount = conn_get_account(c);
-  int userlevel = account_get_level(pAccount);
-  
-  ss.clear();
-  
-  if (new_access_level > userlevel)
-  {
-    ss << "Error: you cannot set your access level higher than your level. Your current level is " << userlevel;
-    message_send_text(c, message_type_info, c, ss.str().c_str());
-  } else if (new_access_level < 0) /* FIXME: this needs to be in the config file */
-  {
-    ss << "Error: " << new_access_level << " is below the minimum level";
-    message_send_text(c, message_type_info, c, ss.str().c_str());
-  } else 
-  {
-    conn_set_access_level(c, new_access_level);
-    ss << "Success! Your game access level(AL) has been changed to " << new_access_level << ". Only users with this value or above can join your games.";
-    message_send_text(c, message_type_info, c, ss.str().c_str());
+  t_account *account;
+  if (!(account = conn_get_account(c))) {
+    message_send_text(c,message_type_error,c,"Your account could not be retrieved, sorry.");
+    return 0;
   }
+  
+  int level = account_get_level(account);
+  
+  if (access_level > 100) { // FIXME: max via prefs
+    message_send_text(c,message_type_error,c,"You cannot set your access level higher than the global maximum.");
+    return 0;
+  }
+  
+  if (access_level > level) {
+    message_send_text(c,message_type_error,c,"You cannot set your access level higher than your level.");
+    return 0;
+  }
+  
+  if (access_level < 0) { /* FIXME: this needs to be in the config file */
+    message_send_text(c,message_type_error,c,"You cannot set your access level lower than the global minimum.");
+    return 0;
+  }
+  
+  conn_set_access_level(c, access_level);
+  std::stringstream message;
+  message << "Success! Your game access level (AL) has been changed to " << access_level << ". Only users with this value or above can join your games.";
+  message_send_text(c,message_type_info,c,message.str().c_str());
   
   return 0;
 }
