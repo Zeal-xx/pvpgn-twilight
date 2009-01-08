@@ -20,6 +20,7 @@
 #include "account_wrap.h"
 
 #include <cstring>
+#include <sstream>  // Tim Sjoberg, Thu 8 Jan 2009
 
 #include "common/list.h"
 #include "common/eventlog.h"

@@ -22,15 +22,13 @@
 #ifndef INCLUDED_ACCOUNT_WRAP_PROTOS
 #define INCLUDED_ACCOUNT_WRAP_PROTOS
 
-#include <sstream>  // Marc Bowes, Wed 7 Jan 2009
-#include "game.h"   // Marc Bowes, Wed 7 Jan 2009
-
 #define JUST_NEED_TYPES
 #include "account.h"
 #include "connection.h"
 #include "character.h"
 #include "common/bnettime.h"
 #include "ladder.h"
+#include "game.h"
 #include "common/tag.h"
 #undef JUST_NEED_TYPES
 
@@ -86,6 +84,13 @@ extern int account_get_auth_joinladdergame(t_account * account);
  */
 extern int account_get_auth_lock(t_account * account);
 extern int account_set_auth_lock(t_account * account, int val, t_account * locker);
+
+/*
+ Twilight modifications
+ ======================
+ See function definitions in bnetd/game.cpp
+ */
+extern int game_get_level(t_game * game);
 
 /* profile */
 extern char const * account_get_sex(t_account * account); /* the profile attributes are updated directly in bnetd.c */
