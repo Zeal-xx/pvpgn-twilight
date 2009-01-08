@@ -1372,9 +1372,9 @@ extern t_message * message_create(t_message_type type, t_connection * src, char 
  Author:  Marc Bowes
  Date:    Thu 8 Jan 2009
  
- Renamed from message_create
+ Renamed from message_create, and converted to use text(std::string)
  */
-extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text)
+extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text_as_const_char_ptr)
 {
     t_message * message;
 
@@ -1386,7 +1386,11 @@ extern t_message * message_create_without_truncation(t_message_type type, t_conn
     message->mclasses	= NULL;
     message->type       = type;
     message->src        = src;
-    message->text       = text;
+    
+    if (text_as_const_char_ptr)
+      message->text     = text_as_const_char_ptr;
+    else
+      message->text     = "";
 
     return message;
 }
@@ -1419,6 +1423,14 @@ extern int message_destroy(t_message * message)
 }
 
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu Jan 8 2009
+ 
+ Just some changes to convert text(std::string) to the const char * it used to be
+ */
 static t_packet * message_cache_lookup(t_message * message, t_connection *dst, unsigned int dstflags)
 {
     unsigned int i;
@@ -1479,7 +1491,8 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
-	if (message_telnet_format(packet,message->type,message->src,dst,message->text,dstflags)<0)
+	// Twilight v
+	if (message_telnet_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1491,7 +1504,8 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
-	if (message_bot_format(packet,message->type,message->src,dst,message->text,dstflags)<0)
+	// Twilight v
+	if (message_bot_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1503,7 +1517,8 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
-	if (message_bnet_format(packet,message->type,message->src,dst,message->text,dstflags)<0)
+	// Twilight v
+	if (message_bnet_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1519,7 +1534,8 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    return NULL;
 	}
 	/* irc_message_format() is in irc.c */
-	if (irc_message_format(packet,message->type,message->src,dst,message->text,dstflags)<0)
+	// Twilight v
+	if (irc_message_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */

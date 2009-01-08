@@ -104,7 +104,24 @@ typedef struct message
     /* ---- */
     t_message_type type;       /* format of message */
     t_connection * src;        /* originator message */
-    char const *   text;       /* text of message */
+    
+    /*
+     Twilight modifications
+     ======================
+     Author:  Marc Bowes
+     Date:    Thu Jan 8 2009
+     
+     This was:
+     char const *   text;       // text of message
+     
+     But I don't like it because it relies on the callee function to not fiddle
+     with the contents of the text. Should the project ever change the way
+     messages are sent (e.g. in a seperate thread), the message content could
+     very well change - which is a problem. Furthermore, it doesn't allow for
+     validations (such as truncation) as you don't want to modify contents of
+     content which doesn't belong to this struct.
+    */
+    std::string text;
 }
 #endif
 t_message;
