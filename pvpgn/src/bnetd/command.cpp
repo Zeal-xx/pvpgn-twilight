@@ -31,7 +31,7 @@
 #include <cerrno>
 #include <cstring>
 #include <cstdlib>
-#include <sstream>
+#include <sstream>  // Tim Sjoberg, Thu 8 Jan 2009
 
 #include "compat/strcasecmp.h"
 #include "compat/snprintf.h"

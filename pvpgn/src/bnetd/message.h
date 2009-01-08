@@ -18,8 +18,6 @@
 #ifndef INCLUDED_MESSAGE_TYPES
 #define INCLUDED_MESSAGE_TYPES
 
-#include <sstream> // Marc Bowes, Thu 8 Jan 2009
-
 #ifdef MESSAGE_INTERNAL_ACCESS
 
 #ifdef JUST_NEED_TYPES
