@@ -2641,7 +2641,7 @@ extern int account_set_experience(t_account * account, int experience, t_account
     eventlog(eventlog_level_debug,__FUNCTION__,"%s by system",log_message.str().c_str());
   }
   
-  return account_set_numattr(account,"BNETL\\experience",experience) & account_set_numattr(account,"BNETL\\level",level);
+  return account_set_numattr(account,"BNET\\experience",experience) & account_set_numattr(account,"BNET\\level",level);
 }
 
 /*
