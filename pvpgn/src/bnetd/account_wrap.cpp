@@ -2604,7 +2604,7 @@ extern int account_get_experience(t_account * account)
  Twilight modificiations
  =======================
  Author:  Marc Bowes
- Date:    Wed 7 Jan 2009
+ Dates:   Wed 7 Jan 2009, Thu 8 Jan 2009
  
  Attribute setter for BNET\experience
  Ensures that the account's connection's AL is legal
@@ -2641,7 +2641,7 @@ extern int account_set_experience(t_account * account, int experience, t_account
     eventlog(eventlog_level_debug,__FUNCTION__,"%s by system",log_message.str().c_str());
   }
   
-  return 0;
+  return account_set_numattr(account,"BNETL\\experience",experience) & account_set_numattr(account,"BNETL\\level",level);
 }
 
 /*
