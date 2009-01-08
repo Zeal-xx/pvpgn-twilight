@@ -151,11 +151,10 @@ extern int message_send_admins(t_connection * src, t_message_type type, char con
  ======================
  message_sent_text overloaded to allow for strings and stringstreams
  */
-extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, char const * text);
-// Twilight
+extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::stringstream const & text);
 extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::string const & text);
-extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::stringstream & text);
 // ---
+extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, char const * text);
 extern int message_send_formatted(t_connection * dst, char const * text);
 extern int message_send_file(t_connection * dst, std::FILE * fd);
 

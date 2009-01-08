@@ -1641,6 +1641,34 @@ extern int message_send_all(t_message * message)
 }
 
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Overload for message_send_text
+ */
+extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::stringstream const & text)
+{
+  return message_send_text(dst,type,src,text.str().c_str());
+}
+
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Overload for message_send_text
+ */
+extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::string const & text)
+{
+  return message_send_text(dst,type,src,text.c_str());
+}
+
+
 extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, char const * text)
 {
     t_message * message;
@@ -1658,18 +1686,6 @@ extern int message_send_text(t_connection * dst, t_message_type type, t_connecti
     message_destroy(message);
 
     return rez;
-}
-
-
-extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::string const & text)
-{
-  return message_send_text(dst,type,src,text.c_str());
-}
-
-
-extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::stringstream const & text)
-{
-  return message_send_text(dst,type,src,text.str().c_str());
 }
 
 

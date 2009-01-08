@@ -5229,7 +5229,7 @@ static int _handle_experience_command(t_connection * c, char const * text)
         if (player = game_get_player(game, i)) {
           message.clear();
           message << account_get_name(player) << "'s experience is: " << account_get_experience(player);
-          message_send_text(c,message_type_info,c,message.str().c_str());
+          message_send_text(c,message_type_info,c,message);
         }
       }
       
