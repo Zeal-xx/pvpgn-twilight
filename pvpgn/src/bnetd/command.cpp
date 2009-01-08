@@ -3009,7 +3009,9 @@ struct glist_cb_struct {
  Modification description
  ------------------------
  The Experience System limits the games displayed (filter by level).
- In a similar manner go _glist_cb in handle_bnet.cpp, started games are hidden
+ In a similar manner go _glist_cb in handle_bnet.cpp, started games are hidden.
+ Changes are commented, but the diff will mark the entire function as
+ 'rewritten', simply because of tabbing changes.
  */
 static int _glist_cb(t_game *game, void *data)
 {

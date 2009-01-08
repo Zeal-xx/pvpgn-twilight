@@ -3836,88 +3836,123 @@ static int _client_startgame1(t_connection * c, t_packet const *const packet)
     return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Description of _client_startgame3
+ ---------------------------------
+ Called when a startgame3 packet is received. Does stuff like setting game
+ statuses and what not.
+ 
+ Modification description
+ ------------------------
+ We rename the game's name to reflect the level of the game. Changes are
+ commented, but the diff will mark the entire function as 'rewritten', simply
+ because of tabbing changes.
+ */
 static int _client_startgame3(t_connection * c, t_packet const *const packet)
 {
-    t_packet *rpacket;
+  t_packet *rpacket;
 
-    if (packet_get_size(packet) < sizeof(t_client_startgame3)) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (expected %lu bytes, got %u)", conn_get_socket(c), sizeof(t_client_startgame3), packet_get_size(packet));
-	return -1;
+  if (packet_get_size(packet) < sizeof(t_client_startgame3)) {
+    eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (expected %lu bytes, got %u)", conn_get_socket(c), sizeof(t_client_startgame3), packet_get_size(packet));
+    return -1;
+  }
+
+  {
+    // Twilight - alias chain, renamed from gamename
+    char const *untagged_gamename;
+    // ---
+    char const *gamepass;
+    char const *gameinfo;
+    unsigned short bngtype;
+    unsigned int status;
+    t_game *currgame;
+    
+    if (!(untagged_gamename = packet_get_str_const(packet, sizeof(t_client_startgame3), MAX_GAMENAME_LEN))) {
+      eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (missing or too long gamename)", conn_get_socket(c));
+      return -1;
     }
-
-    {
-	char const *gamename;
-	char const *gamepass;
-	char const *gameinfo;
-	unsigned short bngtype;
-	unsigned int status;
-	t_game *currgame;
-
-	if (!(gamename = packet_get_str_const(packet, sizeof(t_client_startgame3), MAX_GAMENAME_LEN))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (missing or too long gamename)", conn_get_socket(c));
-	    return -1;
-	}
-	if (!(gamepass = packet_get_str_const(packet, sizeof(t_client_startgame3) + std::strlen(gamename) + 1, MAX_GAMEPASS_LEN))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (missing or too long gamepass)", conn_get_socket(c));
-	    return -1;
-	}
-	if (!(gameinfo = packet_get_str_const(packet, sizeof(t_client_startgame3) + std::strlen(gamename) + 1 + std::strlen(gamepass) + 1, MAX_GAMEINFO_LEN))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (missing or too long gameinfo)", conn_get_socket(c));
-	    return -1;
-	}
-	if (conn_get_joingamewhisper_ack(c) == 0) {
-	    if (watchlist->dispatch(conn_get_account(c), gamename, conn_get_clienttag(c), Watch::ET_joingame) == 0)
-		eventlog(eventlog_level_info, "handle_bnet", "Told Mutual Friends your in game %s", gamename);
-
-	    conn_set_joingamewhisper_ack(c, 1);	//1 = already whispered. We reset this each time user joins a channel
-	}
-	bngtype = bn_short_get(packet->u.client_startgame3.gametype);
-	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] got startgame3 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)", conn_get_socket(c), gamename, bn_int_get(packet->u.client_startgame3.status), bngtype);
-	status = bn_int_get(packet->u.client_startgame3.status) & CLIENT_STARTGAME3_STATUSMASK;
-
-	if ((currgame = conn_get_game(c))) {
-	    switch (status) {
-		case CLIENT_STARTGAME3_STATUS_STARTED:
-		    game_set_status(currgame, game_status_started);
-		    break;
-		case CLIENT_STARTGAME3_STATUS_FULL:
-		    game_set_status(currgame, game_status_full);
-		    break;
-		case CLIENT_STARTGAME3_STATUS_OPEN1:
-		case CLIENT_STARTGAME3_STATUS_OPEN:
-		    game_set_status(currgame, game_status_open);
-		    break;
-		case CLIENT_STARTGAME3_STATUS_DONE:
-		    game_set_status(currgame, game_status_done);
-		    eventlog(eventlog_level_info, __FUNCTION__, "[%d] game \"%s\" is finished", conn_get_socket(c), gamename);
-		    break;
-	    }
-	} else if (status != CLIENT_STARTGAME3_STATUS_DONE) {
-	    t_game_type gtype;
-
-	    gtype = bngtype_to_gtype(conn_get_clienttag(c), bngtype);
-	    if ((gtype == game_type_ladder && account_get_auth_createladdergame(conn_get_account(c)) == 0) || (gtype != game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c)) == 0))
-		eventlog(eventlog_level_info, __FUNCTION__, "[%d] game start for \"%s\" refused (no authority)", conn_get_socket(c), conn_get_username(c));
-	    else
-		conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW3);
-
-	    if ((rpacket = packet_create(packet_class_bnet))) {
-		packet_set_size(rpacket, sizeof(t_server_startgame3_ack));
-		packet_set_type(rpacket, SERVER_STARTGAME3_ACK);
-
-		if (conn_get_game(c))
-		    bn_int_set(&rpacket->u.server_startgame3_ack.reply, SERVER_STARTGAME3_ACK_OK);
-		else
-		    bn_int_set(&rpacket->u.server_startgame3_ack.reply, SERVER_STARTGAME3_ACK_NO);
-
-		conn_push_outqueue(c, rpacket);
-		packet_del_ref(rpacket);
-	    }
-	} else
-	    eventlog(eventlog_level_info, __FUNCTION__, "[%d] client tried to set game status DONE to destroyed game", conn_get_socket(c));
+    
+    // Twilight - prepend [level] to game name
+    int game_level = conn_get_access_level(c);
+    std::stringstream tagged_game_name;
+    tagged_game_name << "[" << game_level << "]" << untagged_gamename;
+    char const *gamename = tagged_game_name.str().substr(0, MAX_GAMENAME_LEN).c_str();
+    // ---
+    
+    if (!(gamepass = packet_get_str_const(packet, sizeof(t_client_startgame3) + std::strlen(gamename) + 1, MAX_GAMEPASS_LEN))) {
+      eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (missing or too long gamepass)", conn_get_socket(c));
+      return -1;
     }
+    
+    if (!(gameinfo = packet_get_str_const(packet, sizeof(t_client_startgame3) + std::strlen(gamename) + 1 + std::strlen(gamepass) + 1, MAX_GAMEINFO_LEN))) {
+      eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad STARTGAME3 packet (missing or too long gameinfo)", conn_get_socket(c));
+      return -1;
+    }
+    
+    if (conn_get_joingamewhisper_ack(c) == 0) {
+      if (watchlist->dispatch(conn_get_account(c), gamename, conn_get_clienttag(c), Watch::ET_joingame) == 0) {
+      	eventlog(eventlog_level_info, "handle_bnet", "Told Mutual Friends your in game %s", gamename);
+    	}
+      conn_set_joingamewhisper_ack(c, 1);	//1 = already whispered. We reset this each time user joins a channel
+    }
+    
+    bngtype = bn_short_get(packet->u.client_startgame3.gametype);
+    eventlog(eventlog_level_debug, __FUNCTION__, "[%d] got startgame3 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",
+      conn_get_socket(c), gamename, bn_int_get(packet->u.client_startgame3.status), bngtype);
+    status = bn_int_get(packet->u.client_startgame3.status) & CLIENT_STARTGAME3_STATUSMASK;
 
-    return 0;
+    if ((currgame = conn_get_game(c))) {
+      switch (status) {
+    	case CLIENT_STARTGAME3_STATUS_STARTED:
+  	    game_set_status(currgame, game_status_started);
+  	    break;
+    	case CLIENT_STARTGAME3_STATUS_FULL:
+  	    game_set_status(currgame, game_status_full);
+  	    break;
+    	case CLIENT_STARTGAME3_STATUS_OPEN1:
+    	case CLIENT_STARTGAME3_STATUS_OPEN:
+  	    game_set_status(currgame, game_status_open);
+  	    break;
+    	case CLIENT_STARTGAME3_STATUS_DONE:
+  	    game_set_status(currgame, game_status_done);
+  	    eventlog(eventlog_level_info, __FUNCTION__, "[%d] game \"%s\" is finished", conn_get_socket(c), gamename);
+  	    break;
+      }
+    }
+    
+    else if (status != CLIENT_STARTGAME3_STATUS_DONE) {
+      t_game_type gtype;
+
+      gtype = bngtype_to_gtype(conn_get_clienttag(c), bngtype);
+      if ((gtype == game_type_ladder && account_get_auth_createladdergame(conn_get_account(c)) == 0) || (gtype != game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c)) == 0))
+      	eventlog(eventlog_level_info, __FUNCTION__, "[%d] game start for \"%s\" refused (no authority)", conn_get_socket(c), conn_get_username(c));
+      else
+      	conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW3);
+
+      if ((rpacket = packet_create(packet_class_bnet))) {
+      	packet_set_size(rpacket, sizeof(t_server_startgame3_ack));
+      	packet_set_type(rpacket, SERVER_STARTGAME3_ACK);
+
+      	if (conn_get_game(c))
+    	    bn_int_set(&rpacket->u.server_startgame3_ack.reply, SERVER_STARTGAME3_ACK_OK);
+      	else
+    	    bn_int_set(&rpacket->u.server_startgame3_ack.reply, SERVER_STARTGAME3_ACK_NO);
+
+      	conn_push_outqueue(c, rpacket);
+      	packet_del_ref(rpacket);
+      }
+    }
+    
+    else
+      eventlog(eventlog_level_info, __FUNCTION__, "[%d] client tried to set game status DONE to destroyed game", conn_get_socket(c));
+  }
+
+  return 0;
 }
 
 static int _client_startgame4(t_connection * c, t_packet const *const packet)
