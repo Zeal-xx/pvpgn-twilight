@@ -31,6 +31,7 @@
 #include <cerrno>
 #include <cstring>
 #include <cstdlib>
+#include <sstream>
 
 #include "compat/strcasecmp.h"
 #include "compat/snprintf.h"
