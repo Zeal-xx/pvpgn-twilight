@@ -3880,7 +3880,7 @@ static int _client_startgame3(t_connection * c, t_packet const *const packet)
     // Twilight - prepend [level] to game name
     int game_level = conn_get_access_level(c);
     std::stringstream tagged_game_name;
-    tagged_game_name << "[" << game_level << "]" << untagged_gamename;
+    tagged_game_name << "[" << game_level << "]" << untagged_gamename; // FIXME: maybe this tag should be configurable?
     char const *gamename = tagged_game_name.str().substr(0, MAX_GAMENAME_LEN).c_str();
     // ---
     
