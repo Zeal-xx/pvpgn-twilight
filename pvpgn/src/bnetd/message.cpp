@@ -1453,7 +1453,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
     t_message_class mclass;
     t_conn_class cclass;
     // Twilight
-    char const * message_text = (message->text ? NULL : message->text->c_str());
+    char const * message_text = (message->text ? message->text->c_str() : NULL);
     // ---
 
     if (!message)
