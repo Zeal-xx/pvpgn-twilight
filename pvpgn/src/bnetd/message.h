@@ -121,7 +121,7 @@ typedef struct message
      validations (such as truncation) as you don't want to modify contents of
      content which doesn't belong to this struct.
     */
-    std::string text;
+    std::string * text;
 }
 #endif
 t_message;

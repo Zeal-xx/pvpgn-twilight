@@ -1388,14 +1388,22 @@ extern t_message * message_create_without_truncation(t_message_type type, t_conn
     message->src        = src;
     
     if (text_as_const_char_ptr)
-      message->text     = text_as_const_char_ptr;
+      message->text     = new std::string(text_as_const_char_ptr);
     else
-      message->text     = "";
+      message->text     = NULL;
 
     return message;
 }
 
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Free up allocation for message->text
+ */
 extern int message_destroy(t_message * message)
 {
     unsigned int i;
@@ -1417,6 +1425,13 @@ extern int message_destroy(t_message * message)
 	xfree(message->dstflags);
     if (message->mclasses)
 	xfree(message->mclasses);
+	
+	// Twilight
+  if (message->text) {
+  	delete message->text;
+	}
+  // ---
+  
     xfree(message);
 
     return 0;
@@ -1492,7 +1507,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    return NULL;
 	}
 	// Twilight v
-	if (message_telnet_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
+	if (message_telnet_format(packet,message->type,message->src,dst,message->text->c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1505,7 +1520,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    return NULL;
 	}
 	// Twilight v
-	if (message_bot_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
+	if (message_bot_format(packet,message->type,message->src,dst,message->text->c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1518,7 +1533,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    return NULL;
 	}
 	// Twilight v
-	if (message_bnet_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
+	if (message_bnet_format(packet,message->type,message->src,dst,message->text->c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1535,7 +1550,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	}
 	/* irc_message_format() is in irc.c */
 	// Twilight v
-	if (irc_message_format(packet,message->type,message->src,dst,message->text.c_str(),dstflags)<0)
+	if (irc_message_format(packet,message->type,message->src,dst,message->text->c_str(),dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
