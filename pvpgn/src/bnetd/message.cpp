@@ -1369,26 +1369,6 @@ extern t_message * message_create(t_message_type type, t_connection * src, std::
  Author:  Marc Bowes
  Date:    Thu 8 Jan 2009
  
- Description of message_create
- -----------------------------
- This is an "alias chain" for message_create
- The original message_create is now called message_create_without_truncation..
- and, surprise!, relies on the callee to ensure the message length is legal.
-
- Truncates the stringstream, converts it to a std::string, then forwards into
- onto message_create_without_truncation
- */
-extern t_message * message_create(t_message_type type, t_connection * src, std::stringstream const & naughty_stream)
-{
-  return message_create(type,src,naughty_stream.str());
-}
-
-/*
- Twilight modifications
- ======================
- Author:  Marc Bowes
- Date:    Thu 8 Jan 2009
- 
  Renamed from message_create
  */
 extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text)

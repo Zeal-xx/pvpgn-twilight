@@ -52,6 +52,8 @@ all changes here relate to framework for the [experience system][expsys]
 * game#game_create changed to intialize a level
 * command#_glist_cb changed to filter non-open games
 * command#_glist_cb changed to filter games by level, using conn_can_join_game
+* handle_bnet#_glist_cb changed to filter games by level, using conn_can_join_game
+* handle_bnet#_client_gamelistreq changed to filter games by level, using conn_can_join_game
 
 ## 2009-01-08 = Thursday 8 Jan 2009
 
@@ -64,9 +66,16 @@ These changes will migrate into a versioned release once testing is complete.*
 * command#_handle_experience_command changed to show exp to next level
 * command#_handle_setal_command rewritten to opt-out style
 * command#_handle_oper_command created
+* commands changed to use the overloaded message_send_text's where possible
 
 ### message changes
 
 * message#message_send_operators created
+* message#message_create alias chained for message truncation
+* message#message_send_text overloaded to accept strings and stringstreams
+
+### game changes
+
+* handle_bnet#_client_startgame3 prepends the game's level to the name
 
 [expsys]: http://wiki.github.com/marcbowes/pvpgn-twilight/experience-system "Experience System @ PVPGN-Twilight Wiki"
