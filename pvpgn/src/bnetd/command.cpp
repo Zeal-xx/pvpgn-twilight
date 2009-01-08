@@ -5189,7 +5189,7 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
  Twilight modifications
  ======================
  Authors: Marc Bowes, Tim Sjoberg
- Date:    Wed 7 Jan 2009
+ Dates:   Wed 7 Jan 2009, Thur 8 Jan 2009
  
  Description of _handle_experience_command
  -----------------------------------------
@@ -5238,9 +5238,17 @@ static int _handle_experience_command(t_connection * c, char const * text)
       return 0;
     }
   
-    int userexperience = account_get_experience(account);
+    int experience  = account_get_experience(account);
+    int level       = account_convert_experience_to_level(experience);
+    int exp2nxtlvl  = account_convert_level_to_experience(level + 1) - experience;
     std::stringstream message;
-    message << "Your current experience is " << userexperience << ".";
+    message << "Your current experience is " << experience << ". ";
+    // FIXME: max level from prefs
+    if (level + 1 > 100) {
+      message << "You cannot level up.";
+    } else {
+      message << "You need " << exp2nxtlvl << " experience to level.";
+    }
     message_send_text(c,message_type_info,c,message.str().c_str());
     
     return 0;
@@ -5253,9 +5261,17 @@ static int _handle_experience_command(t_connection * c, char const * text)
     return 0;
   }
   
-  int userexperience = account_get_experience(account);
+  int experience  = account_get_experience(account);
+  int level       = account_convert_experience_to_level(experience);
+  int exp2nxtlvl  = account_convert_level_to_experience(level + 1) - experience;
   std::stringstream message;
-  message << username << "'s experience is: " << userexperience << ".";
+  message << "User " << username << "'s current experience is " << experience;
+  // FIXME: max level from prefs
+  if (level + 1 > 100) {
+    message << " and cannot level up.";
+  } else {
+    message << " and need's " << exp2nxtlvl << " experience to level.";
+  }
   message_send_text(c,message_type_info,c,message.str().c_str());
 
   return 0;

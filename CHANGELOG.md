@@ -19,4 +19,12 @@ These changes will migrate into a versioned release once testing is complete.*
 * added getal which returns the users current access level
 * added setal which allows the user to change their access level
 
+## 2009-01-08 = Thursday 8 Jan 2009
+
+*Changes listed here are current in the development branch. While the code
+compiles, it is not meant to be run. It has not been tested by the developers.
+These changes will migrate into a versioned release once testing is complete.*
+
+* experience command shows experience to next level
+
 [expsys]: http://wiki.github.com/marcbowes/pvpgn-twilight/experience-system "Experience System @ PVPGN-Twilight Wiki"
