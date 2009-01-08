@@ -4427,7 +4427,7 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
   std::stringstream message;
   message << username << " is now locked";
   account_set_auth_lock(account, 1, locker);
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message.str());
   return 0;
 }
 
@@ -4484,7 +4484,7 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
   std::stringstream message;
   message << username << " is now unlocked";
   account_set_auth_lock(account, 0, unlocker);
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message.str());
   return 0;
 }
 
@@ -5254,7 +5254,7 @@ static int _handle_experience_command(t_connection * c, char const * text)
     } else {
       message << "You need " << exp2nxtlvl << " experience to level.";
     }
-    message_send_text(c,message_type_info,c,message.str().c_str());
+    message_send_text(c,message_type_info,c,message);
     
     return 0;
   }
@@ -5277,7 +5277,7 @@ static int _handle_experience_command(t_connection * c, char const * text)
   } else {
     message << " and need's " << exp2nxtlvl << " experience to level.";
   }
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message);
 
   return 0;
 }
@@ -5328,7 +5328,7 @@ static int _handle_setexperience_command(t_connection * c, char const * text)
   account_set_experience(account, experience, setter);
   std::stringstream message;
   message << "User " << username << "'s experience/level has been changed to " << experience << "/" << account_get_level(account) << ".";
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message);
   
   return 0;
 }
@@ -5373,7 +5373,7 @@ static int _handle_level_command(t_connection * c, char const * text)
         if (player = game_get_player(game, i)) {
           message.clear();
           message << account_get_name(player) << " is level " << account_get_level(player);
-          message_send_text(c,message_type_info,c,message.str().c_str());
+          message_send_text(c,message_type_info,c,message);
         }
       }
       
@@ -5390,7 +5390,7 @@ static int _handle_level_command(t_connection * c, char const * text)
     int level = account_get_level(account);
     std::stringstream message;
     message << "Your level is " << level << ".";
-    message_send_text(c,message_type_info,c,message.str().c_str());
+    message_send_text(c,message_type_info,c,message);
     
     return 0;
   }
@@ -5405,7 +5405,7 @@ static int _handle_level_command(t_connection * c, char const * text)
   int level = account_get_level(account);
   std::stringstream message;
   message << username << "'s level is: " << level << ".";
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message);
   
   return 0;
 }
@@ -5458,7 +5458,7 @@ static int _handle_getal_command(t_connection * c, char const * text)
   std::stringstream message;
   message << "Your game access level is currently set to: " << conn_get_access_level(c);
   message << ". Only users with this level or above can join your games.";
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message);
 
   return 0;
 }
@@ -5516,7 +5516,7 @@ static int _handle_setal_command(t_connection * c, char const * text)
   conn_set_access_level(c, access_level);
   std::stringstream message;
   message << "Success! Your game access level (AL) has been changed to " << access_level << ". Only users with this value or above can join your games.";
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message);
   
   return 0;
 }
@@ -5542,7 +5542,7 @@ static int _handle_oper_command(t_connection * c, char const * text)
   
   std::stringstream message;
   message << conn_get_loggeduser(c) << ": " << params;
-  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_text(c,message_type_info,c,message);
   message_send_operators(c,message_type_info,message.str().c_str());
   message_send_admins(c,message_type_info,message.str().c_str());
   
