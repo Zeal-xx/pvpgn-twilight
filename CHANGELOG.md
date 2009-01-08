@@ -53,16 +53,6 @@ all changes here relate to framework for the [experience system][expsys]
 * command#_glist_cb changed to filter non-open games
 * command#_glist_cb changed to filter games by level, using conn_can_join_game
 
-* added experience (or /exp) command which returns the users current experience
-* added setexperience (or /setexp) command which changes the specified users
-  experience
-* added level command
-* added setlevel command for admins
-* admins are notified if lockacct/unlockacct is used on an account which is
-  already locked
-* added getal which returns the users current access level
-* added setal which allows the user to change their access level
-
 ## 2009-01-08 = Thursday 8 Jan 2009
 
 *Changes listed here are current in the development branch. While the code
