@@ -32,6 +32,8 @@
 
 #endif
 
+#include <sstream>
+
 namespace pvpgn
 {
 
