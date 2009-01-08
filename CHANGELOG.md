@@ -71,6 +71,8 @@ These changes will migrate into a versioned release once testing is complete.*
 ### message changes
 
 * message#message_send_operators created
+* message internal access changed to actually store the text instead of just
+  a pointer to an outside source
 * message#message_create alias chained for message truncation
 * message#message_send_text overloaded to accept strings and stringstreams
 
