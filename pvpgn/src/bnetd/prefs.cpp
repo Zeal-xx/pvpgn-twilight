@@ -126,6 +126,10 @@ static struct {
     unsigned int ipban_check_int;
     char const * version_exeinfo_match;
     unsigned int version_exeinfo_maxdiff;
+    
+    //twilight
+    unsigned int max_level;
+    
     unsigned int max_concurrent_logins;
     char const * server_info;
     char const * mapsfile;
@@ -517,6 +521,12 @@ static int conf_set_version_exeinfo_maxdiff(const char *valstr);
 static const char *conf_get_version_exeinfo_maxdiff(void);
 static int conf_setdef_version_exeinfo_maxdiff(void);
 
+//twilight
+static int conf_set_max_level(const char *valstr);
+static const char* conf_get_max_level(void);
+static int conf_setdef_max_level(void);
+
+
 static int conf_set_max_concurrent_logins(const char *valstr);
 static const char *conf_get_max_concurrent_logins(void);
 static int conf_setdef_max_concurrent_logins(void);
@@ -778,6 +788,10 @@ static t_conf_entry conf_table[] =
     { "ipban_check_int",	conf_set_ipban_check_int,      conf_get_ipban_check_int,conf_setdef_ipban_check_int},
     { "version_exeinfo_match",  conf_set_version_exeinfo_match,conf_get_version_exeinfo_match,conf_setdef_version_exeinfo_match},
     { "version_exeinfo_maxdiff",conf_set_version_exeinfo_maxdiff,conf_get_version_exeinfo_maxdiff,conf_setdef_version_exeinfo_maxdiff},
+    
+    //twilight
+    { "max_level",              conf_set_max_level,            conf_get_max_level,    conf_setdef_max_level},
+    
     { "max_concurrent_logins",  conf_set_max_concurrent_logins,conf_get_max_concurrent_logins,conf_setdef_max_concurrent_logins},
     { "server_info", 		conf_set_server_info,          conf_get_server_info,  conf_setdef_server_info},
     { "mapsfile",		conf_set_mapsfile,             conf_get_mapsfile,     conf_setdef_mapsfile},
@@ -2676,6 +2690,37 @@ static const char* conf_get_version_exeinfo_maxdiff(void)
     return conf_get_int(prefs_runtime_config.version_exeinfo_maxdiff);
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Thu 8 Jan 2009
+ 
+ Description
+ -----------------------------------
+ funtions for extra config max level
+ */
+
+extern unsigned int prefs_get_max_level(void)
+{
+    return prefs_runtime_config.max_level;
+}
+
+static int conf_set_max_level(const char *valstr)
+{
+    return conf_set_int(&prefs_runtime_config.max_level,valstr,100);
+}
+
+static int conf_setdef_max_level(void)
+{
+    return conf_set_int(&prefs_runtime_config.max_level,NULL,100);
+}
+
+static const char* conf_get_max_level(void)
+{
+    return conf_get_int(prefs_runtime_config.max_level);
+}
+/******************************************************************/
 
 extern unsigned int prefs_get_max_concurrent_logins(void)
 {

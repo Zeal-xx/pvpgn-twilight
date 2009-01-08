@@ -122,6 +122,21 @@ extern unsigned int prefs_get_ipban_check_int(void) ;
 extern char const * prefs_get_version_exeinfo_match(void) ;
 extern unsigned int prefs_get_version_exeinfo_maxdiff(void) ;
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Tim Sjoberg
+ Date:    Thu 8 Jan 2009
+ 
+ Description
+ -----------------------------------
+ funtion declarations for extra config parameters added
+ */
+ 
+extern unsigned int prefs_get_max_level(void) ;
+//extern int prefs_get_min_level(void) ;
+ 
+
 extern unsigned int prefs_get_max_concurrent_logins(void) ;
 
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
