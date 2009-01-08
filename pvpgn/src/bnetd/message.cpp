@@ -1342,6 +1342,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     return 0;
 }
 
+
 extern t_message * message_create(t_message_type type, t_connection * src, char const * text)
 {
     t_message * message;
