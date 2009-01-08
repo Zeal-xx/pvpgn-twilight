@@ -379,7 +379,7 @@ extern char const * game_difficulty_get_str(unsigned difficulty)
  Twilight modifications
  ======================
  Author:  Marc Bowes
- Date:    Wed 7 Jan 2009
+ Dates:   Wed 7 Jan 2009, Thu 8 Jan 2009
  
  Description of game_create
  --------------------------
@@ -388,6 +388,8 @@ extern char const * game_difficulty_get_str(unsigned difficulty)
  Modification description
  ------------------------
  Added in a parameter to control the access level of this game.
+ Changes with regard to how the name is set (tagging) - instead of
+ game->name = xstrdup(name), it now goes through game_set_name
  */
 extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag, unsigned long gameversion, int access_level)
 {
@@ -416,18 +418,25 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     }
 
     game = (t_game*)xmalloc(sizeof(t_game));
-    game->name = xstrdup(name);
+    // Twilight - removed game->name = xstrdup(name)
     game->pass = xstrdup(pass);
     game->info = xstrdup(info);
     if (!(game->clienttag = clienttag))
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag");
-	xfree((void *)game->info); /* avoid warning */
-	xfree((void *)game->pass); /* avoid warning */
-	xfree((void *)game->name); /* avoid warning */
-	xfree(game);
-	return NULL;
+    	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag");
+    	xfree((void *)game->info); /* avoid warning */
+    	xfree((void *)game->pass); /* avoid warning */
+    	// Twilight - removed xfree((void *)game->name); /* avoid warning */
+    	xfree(game);
+    	return NULL;
     }
+    
+    // Twilight
+    game->tagged_name   = NULL;
+    game->untagged_name = NULL;
+    game->level         = access_level;
+    game_set_name(game, name);
+    // ---
 
     game->type          = type;
     game->addr          = 0; /* will be set by first player */
@@ -462,10 +471,6 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->description   = NULL;
     game->flag  	= std::strcmp(pass,"") ? game_flag_private : game_flag_none;
     game->difficulty    = game_difficulty_none;
-    
-    // Twilight
-    game->level         = access_level;
-    // ---
 
     game_parse_info(game,info);
 
@@ -477,7 +482,16 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     return game;
 }
 
-
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Modification description
+ ------------------------
+ Changed free's because game->name is no longer in commission
+ */
 static void game_destroy(t_game * game)
 {
     unsigned int i;
@@ -528,7 +542,14 @@ static void game_destroy(t_game * game)
 
     xfree((void *)game->info); /* avoid warning */
     xfree((void *)game->pass); /* avoid warning */
-    if (game->name) xfree((void *)game->name); /* avoid warning */
+    
+    // Twilight- game free's now split over tagged/untagged
+    if (game->untagged_name) 
+      xfree((void *) game->untagged_name); /* avoid warning */
+    if (game->tagged_name) 
+      xfree((void *) game->tagged_name); /* avoid warning */
+    // ---
+    
     xfree((void *)game); /* avoid warning */
 
     eventlog(eventlog_level_info,__FUNCTION__,"game deleted");
@@ -1103,14 +1124,75 @@ extern unsigned int game_get_id(t_game const * game)
 }
 
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Modification description
+ ------------------------
+ Returns different data depending on the clienttag of the game
+ * W3XP gets a level prepended
+ * other clients remain unchanged
+ */
 extern char const * game_get_name(t_game const * game)
 {
-    if (!game)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
-        return NULL;
-    }
-    return game->name ? game->name : "BNet";
+  if (!game) {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
+    return NULL;
+  }
+  
+  if (game_get_clienttag(game) == CLIENTTAG_WAR3XP_UINT) {
+    return game->tagged_name    ? game->tagged_name   : "BNet";
+  } return game->untagged_name  ? game->untagged_name : "BNet";
+}
+
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Sets the game name and tags it if W3XP
+ */
+extern int game_set_name(t_game * game, char const * name)
+{
+  if (!game) {
+    ERROR0("got NULL game");
+    return -1;
+  }
+  
+  if (!name) {
+    ERROR0("got NULL name");
+    return -1;
+  }
+  
+  // free up resources if a name was previously set
+  if (game->untagged_name) {
+    xfree((void *) game->untagged_name);
+  }
+  
+  if (game->tagged_name) {
+    xfree((void *) game->tagged_name);
+  }
+  
+  // allocate & copy into untagged
+  game->untagged_name = xstrdup(name);
+  
+  // note, level/clienttag are set before this method is ever called
+  if (game_get_clienttag(game) == CLIENTTAG_WAR3XP_UINT) {
+    std::stringstream tagged_name;
+    tagged_name << "[" << game_get_level(game) << "]" << name;
+    // allocated & copy into tagged
+    game->tagged_name = xstrdup(tagged_name.str().substr(0, MAX_GAMENAME_LEN).c_str());
+  } else {
+    // just making it obvious..
+    game->tagged_name = NULL;
+  }
+  
+  return 0;
 }
 
 
@@ -2078,42 +2160,76 @@ extern int gamelist_get_length(void)
 }
 
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Modification description
+ ------------------------
+ Game name search depends on clienttag - W3XP uses tagged_name
+ */
 extern t_game * gamelist_find_game(char const * name, t_clienttag ctag, t_game_type type)
 {
-    t_elist *curr;
-    t_game *game;
+  t_elist *curr;
+  t_game *game;
 
-    elist_for_each(curr,&gamelist_head)
-    {
-	game = elist_entry(curr,t_game,glist_link);
-	if ((type==game_type_all || game->type==type)
-	    && ctag == game->clienttag
-	    && game->name
-	    && !strcasecmp(name,game->name)) return game;
+  elist_for_each(curr,&gamelist_head) {
+    game = elist_entry(curr,t_game,glist_link);
+    
+    if ((type==game_type_all || game->type==type) && ctag == game->clienttag) {
+      if (ctag == CLIENTTAG_WAR3XP_UINT) {
+        // tagged
+        if (game->tagged_name && !strcasecmp(name,game->tagged_name))
+          return game;
+      } else {
+        // untagged
+        if (game->untagged_name && !strcasecmp(name,game->untagged_name))
+          return game;
+      }
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Modification description
+ ------------------------
+ Game name search depends on clienttag - W3XP uses tagged_name
+ */
 extern t_game * gamelist_find_game_available(char const * name, t_clienttag ctag, t_game_type type)
 {
-    t_elist *curr;
-    t_game *game;
-    t_game_status status;
+  t_elist *curr;
+  t_game *game;
+  t_game_status status;
 
-    elist_for_each(curr,&gamelist_head)
-    {
-        game = elist_entry(curr,t_game,glist_link);
-        status = game->status;
-
-        if ((type==game_type_all || game->type==type) && (ctag == game->clienttag) && (game->name)
-            && (!strcasecmp(name,game->name)) && (game->status != game_status_started) &&
-             (game->status != game_status_done))
-            return game;
+  elist_for_each(curr,&gamelist_head) {
+    game = elist_entry(curr,t_game,glist_link);
+    status = game->status;
+    
+    if ((type==game_type_all || game->type==type) && (ctag == game->clienttag)
+        && (game->status != game_status_started) && (game->status != game_status_done)) {
+      if (ctag == CLIENTTAG_WAR3XP_UINT) {
+        // tagged
+        if (game->tagged_name && !strcasecmp(name,game->tagged_name))
+          return game;
+      } else {
+        // untagged
+        if (game->untagged_name && !strcasecmp(name,game->untagged_name))
+          return game;
+      }
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 extern t_game * gamelist_find_game_byid(unsigned int id)

@@ -180,7 +180,18 @@ typedef enum {
 typedef struct game
 #ifdef GAME_INTERNAL_ACCESS
 {
-    char const *      name;
+    /*
+     Twilight modifications
+     ======================
+     Author:  Marc Bowes
+     Date:    Thu 8 Jan 2009
+          
+     removed
+     
+     char const *      name;
+     
+     see below for replacement
+     */
     char const *      pass;
     char const *      info;
     t_game_type       type;
@@ -224,9 +235,14 @@ typedef struct game
     /*
      Twilight modifications
      ======================
+     Author:  Marc Bowes
+     Dates:   Wed 7 Jan 2009, Thu 8 Jan 2009
+     
      Game internal access, see inline comments where relevent.
      */
     int               level; // used to set access level on a game # Marc Bowes, Wed 7 Jan 2000
+    char const *      tagged_name;
+    char const *      untagged_name;
 }
 #endif
 t_game;
@@ -282,7 +298,24 @@ extern char const * game_difficulty_get_str(unsigned difficulty) ;
  */
 extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag,unsigned long gameversion, int access_level) ;
 extern unsigned int game_get_id(t_game const * game);
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Rewrote this function to return the new internal storage of the game name
+ */
 extern char const * game_get_name(t_game const * game);
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Added this function to deal with tagging
+ */
+extern int game_set_name(t_game * game, char const * name);
 extern t_game_type game_get_type(t_game const * game);
 extern t_game_maptype game_get_maptype(t_game const * game);
 extern int game_set_maptype(t_game * game, t_game_maptype maptype);
