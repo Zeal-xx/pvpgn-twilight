@@ -141,6 +141,13 @@ extern int message_send_text(t_connection * dst, t_message_type type, t_connecti
 extern int message_send_formatted(t_connection * dst, char const * text);
 extern int message_send_file(t_connection * dst, std::FILE * fd);
 
+/*
+ Twilight modifications
+ ======================
+ See function definitions in message.cpp for details
+ */
+extern int message_send_operators(t_connection * src, t_message_type type, char const * text);
+
 }
 
 }

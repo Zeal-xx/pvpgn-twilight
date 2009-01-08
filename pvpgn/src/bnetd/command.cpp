@@ -350,7 +350,7 @@ static int _handle_tos_command(t_connection * c, char const * text);
  Twilight modifications
  ======================
  Authors: Tim Sjoberg, Marc Bowes
- Date:    Wed 7 Jan 2009
+ Dates:   Wed 7 Jan 2009, Thu 8 Jan 2009
  
  Function declarations for exp system related functions
  */
@@ -360,6 +360,7 @@ static int _handle_level_command(t_connection * c, char const * text);
 static int _handle_setlevel_command(t_connection * c, char const * text);
 static int _handle_getal_command(t_connection * c, char const * text);
 static int _handle_setal_command(t_connection * c, char const * text);
+static int _handle_oper_command(t_connection * c, char const * text);
 
 
 static const t_command_table_row standard_command_table[] =
@@ -478,7 +479,7 @@ static const t_command_table_row extended_command_table[] =
  Twilight modifications
  ======================
  Authors: Tim Sjoberg, Marc Bowes
- Date:    Wed 7 Jan 2009
+ Dates:   Wed 7 Jan 2009, Thu 8 Jan 2009
  
  Command hookup - see command definitions
  */
@@ -492,6 +493,7 @@ static const t_command_table_row extended_command_table[] =
   { "/setlvl"            , _handle_setlevel_command },
   { "/getal"             , _handle_getal_command },
   { "/setal"             , _handle_setal_command },
+  { "/oper"              , _handle_oper_command },
 
   { NULL                 , NULL }
 
@@ -5433,6 +5435,7 @@ static int _handle_setlevel_command(t_connection * c, char const * text)
   
   std::stringstream command;
   command << "/setexperience " << username << " " << experience;
+  
   return _handle_setexperience_command(c, command.str().c_str());
 }
 
@@ -5461,7 +5464,7 @@ static int _handle_getal_command(t_connection * c, char const * text)
  Twilight modifications
  ======================
  Authors: Tim Sjoberg, Marc Bowes
- Dates:   Wed 7 Jan 2009, Thur 8 Jan 2009
+ Dates:   Wed 7 Jan 2009, Thu 8 Jan 2009
  
  Description of _handle_setal_command
  ---------------------------------------
@@ -5511,6 +5514,34 @@ static int _handle_setal_command(t_connection * c, char const * text)
   std::stringstream message;
   message << "Success! Your game access level (AL) has been changed to " << access_level << ". Only users with this value or above can join your games.";
   message_send_text(c,message_type_info,c,message.str().c_str());
+  
+  return 0;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Description of _handle_oper_command
+ -----------------------------------
+ Used for "global chat" between admins and operators
+ */
+static int _handle_oper_command(t_connection * c, char const * text)
+{
+  std::string params(skip_command(text));
+  
+  if (params.empty()) {
+    message_send_text(c,message_type_error,c,"usage: /oper <message>");
+    return 0;
+  }
+  
+  std::stringstream message;
+  message << conn_get_loggeduser(c) << ": " << params;
+  message_send_text(c,message_type_info,c,message.str().c_str());
+  message_send_operators(c,message_type_info,message.str().c_str());
+  message_send_admins(c,message_type_info,message.str().c_str());
   
   return 0;
 }

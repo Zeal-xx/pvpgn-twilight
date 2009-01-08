@@ -1342,7 +1342,6 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     return 0;
 }
 
-
 extern t_message * message_create(t_message_type type, t_connection * src, char const * text)
 {
     t_message * message;
@@ -1710,6 +1709,36 @@ extern int message_send_file(t_connection * dst, std::FILE * fd)
     file_get_line(NULL); // clear file_get_line buffer
 
     return 0;
+}
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Description of message_send_operators
+ -------------------------------------
+ Sends a message to all operators, excluding the given sender. Since a user can
+ be both admin and operator, there is potential for them to receive a message
+ twice if used in conjunction with message_send_admins
+ */
+extern int message_send_operators(t_connection * src, t_message_type type, char const * text)
+{
+  t_elem	const * curr;
+  t_connection *	tc;
+  int			counter = 0;
+
+  LIST_TRAVERSE_CONST(connlist(),curr) {
+    tc = (t_connection*)elem_get_data(curr);
+    if (!tc) continue;
+    if (account_get_auth_operator(conn_get_account(tc),NULL)==1 && tc != src) {
+        message_send_text(tc,type,src,text);
+        counter++;
+    }
+  }
+
+  return counter;
 }
 
 }
