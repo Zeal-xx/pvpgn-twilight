@@ -1359,13 +1359,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
  */
 extern t_message * message_create(t_message_type type, t_connection * src, std::string const & naughty_text)
 {
-  char text[MAX_MESSAGE_LEN];
-  /* there is no std::string::truncate? maybe this could go through a
-    * stringstream, but I think this is probably the fastest
-    */
-  std::snprintf(text,sizeof(text),"%s",naughty_text.c_str());
-
-  return message_create_without_truncation(type,src,text);
+  return message_create_without_truncation(type,src,naughty_text.substr(0, MAX_MESSAGE_LEN).c_str());
 }
 
 
