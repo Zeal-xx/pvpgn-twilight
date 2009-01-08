@@ -18,6 +18,8 @@
 #ifndef INCLUDED_MESSAGE_TYPES
 #define INCLUDED_MESSAGE_TYPES
 
+#include <sstream> // Marc Bowes, Thu 8 Jan 2009
+
 #ifdef MESSAGE_INTERNAL_ACCESS
 
 #ifdef JUST_NEED_TYPES
@@ -130,7 +132,15 @@ namespace bnetd
 {
 
 extern char * message_format_line(t_connection const * c, char const * in);
-extern t_message * message_create(t_message_type type, t_connection * src, char const * text);
+/*
+ Twilight modifications
+ ======================
+ message_create alias chained - see function definitions in message.cpp for details
+ */
+extern t_message * message_create(t_message_type type, t_connection * src, std::stringstream const & text);
+extern t_message * message_create(t_message_type type, t_connection * src, std::string const & text);
+extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text);
+// ---
 extern int message_destroy(t_message * message);
 extern int message_send(t_message * message, t_connection * dst);
 extern int message_send_all(t_message * message);

@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #include "common/setup_before.h"
+
 #define MESSAGE_INTERNAL_ACCESS
 #include "message.h"
 
@@ -1342,8 +1343,55 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     return 0;
 }
 
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Description of message_create
+ -----------------------------
+ This is an "alias chain" for message_create
+ The original message_create is now called message_create_without_truncation..
+ and, surprise!, relies on the callee to ensure the message length is legal.
+ 
+ Truncates
+ */
+extern t_message * message_create(t_message_type type, t_connection * src, std::string const & naughty_text)
+{
+  char text[MAX_MESSAGE_LEN];
+  /* there is no std::string::truncate? maybe this could go through a
+    * stringstream, but I think this is probably the fastest
+    */
+  std::snprintf(text,sizeof(text),"%s",naughty_text);
 
-extern t_message * message_create(t_message_type type, t_connection * src, char const * text)
+  return message_create_without_truncation(type,src,text);
+}
+
+
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Description of message_create
+ -----------------------------
+ This is an "alias chain" for message_create
+ The original message_create is now called message_create_without_truncation..
+ and, surprise!, relies on the callee to ensure the message length is legal.
+
+ Truncates the stringstream, converts it to a std::string, then forwards into
+ onto message_create_without_truncation
+ */
+extern t_message * message_create(t_message_type type, t_connection * src, std::stringstream const & naughty_stream)
+{
+  return message_create(type,src,naughty_stream.str());
+}
+
+
+
+extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text)
 {
     t_message * message;
 
