@@ -114,12 +114,18 @@ typedef struct message
      This was:
      char const *   text;       // text of message
      
-     But I don't like it because it relies on the callee function to not fiddle
-     with the contents of the text. Should the project ever change the way
-     messages are sent (e.g. in a seperate thread), the message content could
-     very well change - which is a problem. Furthermore, it doesn't allow for
-     validations (such as truncation) as you don't want to modify contents of
-     content which doesn't belong to this struct.
+     The message_create function would simply point text at whatever was given
+     to it. I don't like this because it relies on the callee function to not
+     fiddle with the contents of the text. Should the project ever change the
+     way messages are sent (e.g. in a seperate thread), the message content
+     could very well change - which is a problem. Furthermore, it doesn't allow
+     for validations (such as truncation) as you don't want to modify contents
+     of content which doesn't belong to this struct. This could be left as a
+     char const *, and then instead of just pointing, you could use something
+     like xstrdup to copy the content in. However, this is supposed to be a C++
+     project now, so I'm going with a string. Unfortunately it needs to be a
+     pointer, because there are some cases where it can be NULL, and an empty
+     string makes some clients unhappy.
     */
     std::string * text;
 }
