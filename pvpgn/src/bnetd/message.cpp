@@ -1363,7 +1363,7 @@ extern t_message * message_create(t_message_type type, t_connection * src, std::
   /* there is no std::string::truncate? maybe this could go through a
     * stringstream, but I think this is probably the fastest
     */
-  std::snprintf(text,sizeof(text),"%s",naughty_text);
+  std::snprintf(text,sizeof(text),"%s",naughty_text.c_str());
 
   return message_create_without_truncation(type,src,text);
 }
@@ -1389,8 +1389,14 @@ extern t_message * message_create(t_message_type type, t_connection * src, std::
   return message_create(type,src,naughty_stream.str());
 }
 
-
-
+/*
+ Twilight modifications
+ ======================
+ Author:  Marc Bowes
+ Date:    Thu 8 Jan 2009
+ 
+ Renamed from message_create
+ */
 extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text)
 {
     t_message * message;
@@ -1658,6 +1664,18 @@ extern int message_send_text(t_connection * dst, t_message_type type, t_connecti
     message_destroy(message);
 
     return rez;
+}
+
+
+extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::string const & text)
+{
+  return message_send_text(dst,type,src,text.c_str());
+}
+
+
+extern int message_send_text(t_connection * dst, t_message_type type, t_connection * src, std::stringstream const & text)
+{
+  return message_send_text(dst,type,src,text.str().c_str());
 }
 
 
