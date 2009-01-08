@@ -1357,9 +1357,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
  
  Truncates
  */
-extern t_message * message_create(t_message_type type, t_connection * src, std::string const & naughty_text)
+extern t_message * message_create(t_message_type type, t_connection * src, char const * text)
 {
-  return message_create_without_truncation(type,src,naughty_text.substr(0, MAX_MESSAGE_LEN).c_str());
+  if (text && strlen(text) > MAX_MESSAGE_LEN) {
+    std::string naughty_text = text;
+    return message_create_without_truncation(type,src,naughty_text.substr(0, MAX_MESSAGE_LEN).c_str());
+  } return message_create_without_truncation(type,src,text);
 }
 
 

@@ -137,7 +137,7 @@ extern char * message_format_line(t_connection const * c, char const * in);
  ======================
  message_create alias chained - see function definitions in message.cpp for details
  */
-extern t_message * message_create(t_message_type type, t_connection * src, std::string const & naughty_text);
+extern t_message * message_create(t_message_type type, t_connection * src, char const * text);
 extern t_message * message_create_without_truncation(t_message_type type, t_connection * src, char const * text);
 // ---
 extern int message_destroy(t_message * message);
