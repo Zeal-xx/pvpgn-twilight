@@ -485,9 +485,9 @@ static const t_command_table_row extended_command_table[] =
  Command hookup - see command definitions
  */
   { "/experience"        , _handle_experience_command },
-  { "/setexperience"     , _handle_setlevel_command },
   { "/exp"               , _handle_experience_command },
-  { "/setexp"            , _handle_setlevel_command },
+  { "/setexperience"     , _handle_setexperience_command },
+  { "/setexp"            , _handle_setexperience_command },
   { "/level"             , _handle_level_command },
   { "/lvl"               , _handle_level_command },
   { "/setlevel"          , _handle_setlevel_command },
